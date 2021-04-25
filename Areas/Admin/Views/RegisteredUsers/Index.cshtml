@@ -1,0 +1,97 @@
+@using Shivyshine.Areas.Identity.Data;
+
+@model IEnumerable<ApplicationUser>
+
+@{
+    ViewData["Title"] = "Registered Users";
+    ViewData["PageTitle"] = "Registered Users";   
+}
+
+@section Scripts {
+    <script>
+        function DeleteConfirm() {
+                if (confirm("Are you sure want to delete this record"))
+                return true;
+                else
+                return false;
+            }        
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="panel panel-bd ">
+            <div class="panel-body">                
+                <label class="text-success">@TempData["StatusMessage"]</label>
+                <div class="table-responsive col-lg-12 m-t-20">                    
+                    <table id="dataTableExample1" class="example table table-bordered table-striped ">
+                        <thead>
+                            <tr class="info">
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Mobile No</th>
+                                <th>Gender</th>
+                                <th>Date of Birth</th>                                
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                               <tr>
+                                   <td>
+                                       @Html.DisplayFor(modelItem => item.FullName)
+                                   </td>
+                                   <td>
+                                       @Html.DisplayFor(modelItem => item.UserName)
+                                   </td>
+                                   <td>
+                                       @Html.DisplayFor(modelItem => item.Email)
+                                       @if(item.EmailConfirmed){
+                                           <i class="fa fa-check text-success" aria-hidden="true"></i>                                           
+                                       }else{
+                                           <i class="fa fa-times text-danger" aria-hidden="true"></i>
+                                       }
+                                   </td>
+                                   <td>
+                                       @Html.DisplayFor(modelItem => item.PhoneNumber)
+                                       @if(item.PhoneNumberConfirmed){
+                                           <i class="fa fa-check text-success" aria-hidden="true"></i>                                           
+                                       }else{
+                                           <i class="fa fa-times text-danger" aria-hidden="true"></i>
+                                       }
+                                   </td>
+                                   <td>
+                                       @{
+                                            if(item.Gender == true)
+                                            {
+                                                <span>Male</span>
+                                            }
+                                            else if(item.Gender == false)
+                                            {
+                                                <span>Female</span>
+                                            }
+                                            else {
+                                                <span>Other</span>
+                                            }
+                                       }
+                                   </td>
+                                   <td>
+                                       @item.DateOfBirth?.ToString("dd MMM yyyy")
+                                   </td>                                
+                                    <td class="text-center">
+                                        @Html.ActionLink("View", "EditEmployee", new { id = item.Id },
+                                        htmlAttributes: new { @class = "btn btn-primary", @Title="View" }) 
+                                    </td>                                    
+                               </tr> 
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

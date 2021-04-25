@@ -1,0 +1,74 @@
+@page
+@model ConfirmPhoneNumberChangeModel
+@{
+    ViewData["Title"] = "Confirm phone number change";
+}
+
+<div class="breadcrumb-area">
+    <div class="container">
+        <div class="breadcrumb-content">
+            <ul>
+                <li><a asp-action="Index" asp-controller="Home">Home</a></li>
+                <li><a href="/Identity/Account/Manage">Your Account</a></li>
+                <li><a href="/Account/UserProfile">Login & Security</a></li>
+                <li class="active">Confirm OTP</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<div class="page-container">
+    <div class="page-content-wrapper">
+        <div class="page-content">
+            <div class="container">
+                <div class="page-content-inner">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="portlet light ">
+
+                                <div class="portlet-body" style="margin-bottom: 10%;margin-top: 1%;">
+                                    <div class="form-horizontal"></div>                                    
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="row">
+                                                <div class="col-md-10">
+                                                    <div class="form-group">
+                                                        <partial name="_StatusMessage" model="Model.StatusMessage" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <form id="phone-form" method="post">
+                                                   
+                                                    <div class="form-group">
+                                                        <label asp-for="Input.OTP"></label>
+                                                        <input asp-for="Input.OTP" class="form-control" />
+                                                        <span asp-validation-for="Input.OTP" class="text-danger"></span>
+                                                    </div>
+
+                                                    <button type="submit" class="btn btn-success">Confirm OTP</button>
+                                                    <a href="/Account/UserProfile" class="btn btn-primary">Cancel</a>
+                                                    
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+}

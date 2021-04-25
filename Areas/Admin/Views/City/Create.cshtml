@@ -1,0 +1,57 @@
+@model City
+
+@{   
+    ViewData["Title"] = "Create";
+    ViewData["PageTitle"] = "Create";
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="panel panel-bd ">
+            <div class="panel-body">
+                <form method="POST">
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.StateId)
+                        @Html.DropDownList("StateId", null, "--Select State--", htmlAttributes: new { @class = "form-control select2" })
+                        @Html.ValidationMessageFor(model => model.StateId, "", new { @class = "text-danger" })                                    
+                    </div>
+                    
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.CityCode)
+                        @Html.EditorFor(model => model.CityCode, new { htmlAttributes = new { @class = "form-control", @placeholder="City Code" } })
+                        @Html.ValidationMessageFor(model => model.CityCode, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.CityName)
+                        @Html.EditorFor(model => model.CityName, new { htmlAttributes = new { @class = "form-control", @placeholder="City Name" } })
+                        @Html.ValidationMessageFor(model => model.CityName, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.ShortName)
+                        @Html.EditorFor(model => model.ShortName, new { htmlAttributes = new { @class = "form-control", @placeholder="Short Name" } })
+                        @Html.ValidationMessageFor(model => model.ShortName, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        <a asp-area="Admin" asp-action="Index" class="btn btn-info">Back</a>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $(".Master").addClass("active");
+        });
+    </script>    
+}

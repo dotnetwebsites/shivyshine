@@ -1,0 +1,85 @@
+@model EmployeeLoginModel
+@{
+    Layout = null;
+    var isUser = Context.Request.Cookies["USERNAME"]!=null ? true : false;
+    
+    if (isUser) {
+        Context.Response.Redirect("/Admin");
+    } 
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>LOG IN - FOCUS HR SOLUTIONS</title>
+        <link rel="shortcut icon" href="~/assets/dist/img/favicon.png" type="image/x-icon">
+        <link href="~/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+        <link href="~/assets/pe-icon-7-stroke/css/pe-icon-7-stroke.css" rel="stylesheet" type="text/css"/>
+        <link href="~/assets/dist/css/stylecrm.css" rel="stylesheet" type="text/css"/>
+        <link href="~/assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        <section class="content " style="padding-top: 150px;padding-bottom: 120px;">
+                    <div class="container">
+               <div class="row">
+                  <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 col-lg-offset-1">
+                     <div class="panel panel-bd lobidisable">
+                         <img src="~/assets/images/logo.png" width="100%" height="240px;">
+                     </div>
+                      <div class="panel panel-bd lobidisable" style="padding: 10px;background: #5a865a;">
+                          <h5 style="color: white;">Get Something?</h5>
+                          <p style="color: white;">Undo is an interaction technique which is implemented in many computer programs. </p>
+                     </div>
+                  </div>
+                  <div class="col-xs-12 col-sm-6 col-md-6 col-lg-5 col-lg-offset-1">
+                      <div class="panel-body">                          
+                           <form id="account" method="post">
+                            <div class="form-group">
+                            @* <img src="~/assets/dist/img/footerlogo.png" /> *@
+                            </div>
+                            <div asp-validation-summary="All" class="text-danger"></div>                   
+                              <div class="form-group ">
+                                <label class="m-b-15">Sign In</label>
+                                <div class=" input-group ">
+                                    <span class="input-group-addon">
+                                    <i class="fa fa-envelope" style="color: #fff!important;"></i></span>
+                                    <input asp-for="@Model.Username" class="form-control" type="text" placeholder="Enter Username or Email"/>
+                                </div>                                
+                              </div>
+
+                              <div class="form-group">
+                                 <div class=" input-group ">
+                                    <span class="input-group-addon">
+                                    <i class="fa fa-lock" style="color: #fff!important;"></i>
+                                    </span>
+                                    <input asp-for="@Model.Password" class="form-control" placeholder="Enter Password" type="password"/>                                    
+                                 </div>                                 
+                              </div>
+  
+                                <div class="form-group text-left m-t-20">
+                                @* <a href="./ForgotPassword" class="text-muted" style="color: #428bca;">Forget Password ?</a> *@
+                                </div>
+                                <div class="form-group text-right" style="position: relative;bottom: 40px;right: 5px;">
+                                    <button type="submit" class="btn btn-primary" style="margin: 30px -2px;"> Sign In</button>
+                                </div>
+                               
+                           </form>
+                         
+                        </div>
+                       
+                  </div>
+               </div>
+              </div>
+            </section>
+        <script src="~/assets/plugins/jQuery/jquery-1.12.4.min.js" type="text/javascript"></script>
+        <script src="~/assets/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    </body>
+</html>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

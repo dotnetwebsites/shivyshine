@@ -1,0 +1,27 @@
+@model DynamicMenu
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+    $("#@ViewBag.DyId").addClass("active");
+    });
+</script>
+
+<div>
+    <h4>Product_Grade</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.MenuName)
+        </dt>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

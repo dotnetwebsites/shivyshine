@@ -1,0 +1,118 @@
+@model IEnumerable<MyOrderView>
+
+@using Shivyshine.Areas.Identity.Data
+@using Shivyshine.Data
+
+@inject ApplicationDbContext _repository
+
+@{
+    ViewData["Title"] = "Customer Orders";
+    ViewData["PageTitle"] = "Customer Orders";
+    var adds = _repository.Addresses.Where(p=>p.Username == User.Identity.Name).ToList();
+
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="panel panel-bd ">
+            <div class="row">
+                <div class="col-md-6">                    
+                    <h3 class="text-uppercase" style="padding: 0px 20px;">
+                        <i class="fa fa-cog"></i>
+                        Customer Orders
+                    </h3>
+                </div>
+                <div class="col-md-5">                    
+                    @Html.ActionLink("Add New", "Create", null, new { Area = "Admin" }, new{ @class = "btn btn-primary", @Title="Create New", @style="margin: 15px 85%;" })
+                </div>
+            </div>
+            <hr/>
+            <div class="panel-body">                
+                <div class="table-scrolled">                                        
+                    <table class="table example table-bordered table-condensed table-striped">
+                        <thead>
+                            <tr>
+                                <th>Order Id</th>
+                                <th>Order Date</th>
+                                <th>Order Status</th>
+                                <th>Total Cost And No.Of Item</th>
+                                @* <th>Cancel Order</th> *@
+                                <th>Status of Delivery</th>
+                                <th>Order Details</th>
+                                <th>Payment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var cancelledorder = @item.IsOrderCancel ? "disabled" : "";
+                                <tr>
+                                    <th>@item.OrderNo</th>
+                                    <th>@item.OrderDate.ToString("dd MMM yyyyy hh:mm tt")</th>
+                                    
+                                    @if(item.IsOrderCancel)
+                                    {
+                                        <th>CANCELLED</th>
+                                    }
+                                    else
+                                    {
+                                        <th>@item.OrderStatus</th>
+                                    }
+                                    
+
+                                    <th><i class="fa fa-inr"></i> @item.NetPayable for @item.NoOfItems items</th>
+
+                                    @* @if(item.IsOrderCancel)
+                                    {
+                                        <td><label>Cancelled Order</label></td>
+                                    }
+                                    else
+                                    {
+                                        <td><a onclick="return ConfirmCancelOrder()" asp-controller="Home" cancelledorder asp-action="CancelOrder" asp-route-id="@item.CustId" class="btn btn-danger">Cancel Your order</a></td>
+                                    } *@
+                                    
+                                    
+                                    <th>@item.DeliveryStatus</th>
+                                    <td><a asp-area="Admin" asp-action="OrderDetails" asp-route-id="@item.CustId"
+                                            class="btn btn-success">Order Details</a></td>
+                                    
+                                    @if(!item.IsOrderCancel)
+                                    {
+                                        @if(@item.PayMode == "BANK")
+                                        {
+                                            <th><span class="text-danger">Pending Payment</span></th>
+                                        }
+                                        else
+                                        {
+                                            <th><span class="text-success">Cash on Delivery</span></th>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <th></th>
+                                    }
+                                    
+                                    
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        function ConfirmCancelOrder()
+        {
+            if(confirm('Are you sure want to cancel your order'))
+                return true;
+            else
+                return false;
+        }
+    </script>
+
+}

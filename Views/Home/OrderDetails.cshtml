@@ -1,0 +1,64 @@
+@model IEnumerable<MyOrderAssortsView>
+
+@{
+    ViewData["Title"] = "Order Details";    
+}
+
+<div class="wrap-breadcrumb">
+    <ul>
+        <li class="item-link"><a asp-area="" asp-action="Index" asp-controller="Home" class="link">Home</a></li>
+        <li class="item-link"><span>My Orders</span></li>
+    </ul>
+</div>
+<div class="row">
+
+    <table class="table table-hover table-responsive table-bordered table-content">
+        <thead>
+            <tr>
+                <th>Product Image</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><img src="@item.ProdImgUrl" height="100" width="100" /></td>
+                    <td><label>@item.ProductName</label></td>
+                    <td><label>@item.Quantity</label></td>                    
+                    <td><label><i class="fa fa-inr"></i> @item.Price.ToString("#,##0.00")</label></td>
+                </tr>                
+            }
+            <tr>
+                <td colspan="3"><label>Grand Total</label></td>
+                <td><label><i class="fa fa-inr"></i> @Model.Sum(p=>p.Price).ToString("#,##0.00")</label></td>
+            </tr>
+        </tbody>
+    </table>
+    <a class="btn btn-primary" asp-area="" asp-controller="Home" asp-action="MyOrders">Back</a>
+
+    @if (@ViewBag.IsOrderCancel)
+    {
+        <td><label class="text-danger">You have cancelled this order.</label></td>
+    }
+    else
+    {
+        <td><a onclick="return ConfirmCancelOrder()" asp-controller="Home" cancelledorder asp-action="CancelOrder"
+                asp-route-id="@ViewBag.CustId" class="btn btn-danger">Cancel this order</a></td>
+    }
+</div>
+
+@section Scripts
+{
+    <script>
+        function ConfirmCancelOrder()
+        {
+            if(confirm('Are you sure want to cancel your order'))
+                return true;
+            else
+                return false;
+        }
+    </script>
+}

@@ -1,0 +1,149 @@
+@model ProductUnit
+
+@{   
+    ViewData["Title"] = "Create";
+    ViewData["PageTitle"] = "Create";
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="panel panel-bd ">
+            <div class="panel-body">
+                <form enctype="multipart/form-data" method="POST">
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+                    <div class="form-group col-md-4">
+                        @Html.Label("Brand")
+                        @Html.DropDownList("BrandId", null, "--Select Brand--", htmlAttributes: new { @class = "form-control" })                        
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.ProductId)
+                        <select asp-for="ProductId" asp-items="@ViewBag.ProductId" class="form-control">
+                            <option value="-1">Select Product</option>
+                        </select>
+                        @Html.ValidationMessageFor(model => model.ProductId, "", new { @class = "text-danger" })
+                    </div>
+                    
+                    @* <div class="form-group col-md-3">
+                        @Html.LabelFor(model => model.ProductId)
+                        @Html.DropDownList("ProductId", null, null, htmlAttributes: new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.ProductId, "", new { @class = "text-danger" })
+                    </div> *@
+                    
+                    <div class="form-group col-md-3">
+                        @Html.LabelFor(model => model.QuantityType)
+                        @Html.DropDownList("QuantityType", null, null, htmlAttributes: new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.QuantityType, "", new { @class = "text-danger" })                        
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        @Html.LabelFor(model => model.Quantity)
+                        @Html.EditorFor(model => model.Quantity, new { htmlAttributes = new { @class = "form-control", @placeholder="Quantity" } })
+                        @Html.ValidationMessageFor(model => model.Quantity, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        @Html.LabelFor(model => model.GSTIN)
+                        @Html.EditorFor(model => model.GSTIN, new { htmlAttributes = new { @class = "form-control", @placeholder="GST IN %" } })
+                        @Html.ValidationMessageFor(model => model.GSTIN, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        @Html.LabelFor(model => model.MRP)
+                        @Html.EditorFor(model => model.MRP, new { htmlAttributes = new { @class = "form-control", @placeholder="MRP" } })
+                        @Html.ValidationMessageFor(model => model.MRP, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        @Html.LabelFor(model => model.DiscountInRs)
+                        @Html.EditorFor(model => model.DiscountInRs, new { htmlAttributes = new { @class = "form-control", @placeholder="Discount in Rs", @onchange="" } })
+                        @Html.ValidationMessageFor(model => model.DiscountInRs, "", new { @class = "text-danger" })                        
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        @Html.LabelFor(model => model.DiscountInPer)
+                        @Html.EditorFor(model => model.DiscountInPer, new { htmlAttributes = new { @class = "form-control", @placeholder="Discount in Per" } })
+                        @Html.ValidationMessageFor(model => model.DiscountInPer, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        @Html.LabelFor(model => model.ProductUnitImages, htmlAttributes: new { @class = "control-label col-md-6" })
+                        <div class="col-md-10 custom-file">
+                            @Html.EditorFor(model => model.ProductUnitImages, new { htmlAttributes = new { @class = "custom-file-input" } })
+                            <span class="custom-file-label" for="customFile">Choose file</span> 
+                            @Html.ValidationMessageFor(model => model.ProductUnitImages, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        @Html.LabelFor(model => model.IsActive)
+                        @Html.CheckBoxFor(model => model.IsActive, new {@checked = "checked"})
+                        @Html.ValidationMessageFor(model => model.IsActive, "", new { @class = "text-danger" })
+                    </div>
+                    
+                    <div class="form-group col-md-12">
+                        <a asp-area="Admin" asp-action="Index" class="btn btn-info">Back</a>
+                        <button type="submit" onclick="return isValidate()" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />  
+    <script>
+        $(document).ready(function () {
+            $(".Master").addClass("active");
+        });
+
+        $(".custom-file-input").on("change", function () {  
+            var fileName = $(this).val().split("\\").pop();  
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);  
+        });
+
+        function isValidate()
+        {
+            var val = $("#ProductId").val();
+            if(val>0)
+            return true;
+            else {
+                alert("Please select product and try again.")
+                return false;
+            }
+
+            var val = $("#ProductUnitId").val();
+            if(val>0)
+            return true;
+            else {
+                alert("Please select product unit and try again.")
+                return false;
+            }
+        }
+
+        $("#BrandId").change(function(){
+            $("#ProductId").empty();
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("LoadProducts")',
+                dataType:'json',
+                data:{id: $("#BrandId").val() },
+                success: function(data){
+                    $("#ProductId").append('<option value="-1">Select Product</option>');
+
+                    $.each(data, function(i, d){
+                        $("#ProductId").append('<option value="' + d.value +'">' + d.text + '</option>');
+                    });
+                },
+                error: function(ex){
+                    console.log(ex);
+                }
+            });
+        });  
+
+       
+    </script>
+}

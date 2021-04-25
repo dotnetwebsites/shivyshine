@@ -1,0 +1,253 @@
+@using Microsoft.AspNetCore.Identity
+@using Shivyshine.Areas.Identity.Data
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["PageTitle"] = "";
+    var user = await UserManager.GetUserAsync(User);
+}
+
+@if (@Context.Request.Cookies["menus"] != null)
+{
+  <div class='col-lg-12'>
+    <div class='hb-menu'>
+      <nav>
+        <ul>
+          @Html.Raw(@Context.Request.Cookies["menus"].ToString())
+        </ul>
+      </nav>
+    </div>
+  </div>
+}
+
+<aside class="main-sidebar">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="m-b-20">
+                <a href="/Admin" class="text-center ">
+                    
+                    @{
+                        if(Context.Request.Cookies["userProf"] != null && Context.Request.Cookies["userProf"].ToString() != ""){
+                            <img src='@Context.Request.Cookies["userprof"].ToString()' alt="" class="img-circle" alt="" width="55" height="55">
+                        }else if(Context.Request.Cookies["gender"]!=null && Context.Request.Cookies["gender"].ToString() == "0"){
+                            <img src="~/assets/dist/img/avatar2.png" alt="" class="img-circle" alt="" width="75" height="75">    
+                        }else {
+                            <img src="~/assets/dist/img/avatar4.png" alt="" class="img-circle" alt="" width="75" height="75">
+                        }
+                    }
+
+                    
+                </a>
+                <p class="text-center m-b-20" style="font-size: 14px;color: white;font-weight: bold;">
+                    @if(Context.Request.Cookies["fullName"]!=null){
+                        <span>@Context.Request.Cookies["fullName"].ToString()</span>
+                    }
+                </p>
+            </li>
+            <li class="active">
+                <a asp-area="Admin" asp-action="Index" asp-controller="Home">
+                    <i class="fa fa-tachometer"></i><span>Dashboard</span>
+                    <span class="pull-right-container">
+                    </span>
+                </a>
+                
+            </li>
+
+            <li>
+                <a asp-action="Index" asp-controller="CustomerOrders" asp-area="Admin">
+                    <i class="fa fa-envelope"></i> <span>Customer Orders</span>
+                    <span class="pull-right-container">
+                    </span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-action="Index" asp-controller="PurchaseOrder" asp-area="Admin">
+                    <i class="fa fa-envelope"></i> <span>Purchase Order</span>
+                    <span class="pull-right-container">
+                    </span>
+                </a>
+            </li>
+
+            @* <li class="active">
+                <a asp-area="Admin" asp-action="Index" asp-controller="DynamicMenu">
+                    <i class="fa fa-tachometer"></i><span>Dynamic Menu</span>
+                    <span class="pull-right-container">
+                    </span>
+                </a>
+            </li> *@
+
+            <li class="treeview Master">
+                <a href="javascript:;">
+                    <i class="fa fa-users"></i><span>Master</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="MainBanner">
+                            Add Main Banner
+                        </a>
+                    </li>
+
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="SubBanner">
+                            Add Sub Banner
+                        </a>
+                    </li>
+
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="Brand">
+                            Add Brand
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="Category">
+                            Add Category
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="SubCategory">
+                            Add Sub Category
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="SuperCategory">
+                            Add Super Category
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="Country">
+                            Add Country
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="State">
+                            Add State
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="City">
+                            Add City
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="Pincode">
+                            Add Pincode
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="Product">
+                            Add Product
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="ProductUnit">
+                            Add Product Unit
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="Shade">
+                            Add Shades
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="ShippingMaster">
+                            Shipping Master
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="SerialNo">
+                            Series Master
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="VendorMaster">
+                            Vendor Master
+                        </a>
+                    </li>
+
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="VendorBrand">
+                            Vendor Brand
+                        </a>
+                    </li>
+                </ul>
+            </li>   
+
+            <li>
+                <a asp-action="Index" asp-controller="MailConfig" asp-area="Admin">
+                    <i class="fa fa-envelope"></i> <span>Mail Console</span>
+                    <span class="pull-right-container">
+                    </span>
+                </a>
+            </li>     
+            <li>
+                <a asp-action="Index" asp-controller="Home" asp-area="">
+                    <i class="fa fa-sign-in"></i> <span>Return Home</span>
+                    <span class="pull-right-container">
+                    </span>
+                </a>
+            </li> 
+
+            <li>
+                <a asp-action="Index" asp-controller="RegisteredUsers" asp-area="Admin">
+                    <i class="fa fa-envelope"></i> <span>Registered Users</span>
+                    <span class="pull-right-container">
+                    </span>
+                </a>
+            </li>
+
+            <li class="treeview">
+                <a href="javascript:;">
+                    <i class="fa fa-users"></i><span>Employee Management</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">                    
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="Employee">
+                            Add New Employee
+                        </a>
+                    </li>
+
+                    <li>
+                        <a asp-area="Admin" asp-action="Index" asp-controller="Employee">
+                            Asign Role
+                        </a>
+                    </li>
+
+                </ul>
+            </li>
+            <li>
+               <a asp-area="Admin" asp-action="ChangePassword" asp-controller="Account">
+                    <i class="fa fa-lock"></i> <span>Change Password</span>
+                    <span class="pull-right-container">
+                    </span>
+                </a>
+            </li>
+            <li>
+               <a asp-area="Admin" asp-action="LogOut" asp-controller="Account">
+                    <i class="fa fa-sign-out"></i> <span>LogOut</span>
+                    <span class="pull-right-container">
+                    </span>
+                </a>
+                @* <a href="javascript:;">
+                    <i class="fa fa-sign-out"></i>
+                    <span class="pull-right-container">
+                        <form asp-area="Admin" asp-page="/Account/Logout"
+                            asp-route-returnUrl="/Admin/Account/Login">
+                            <input type="submit" class="btn btn-link logOut" value="Log Out">
+                                        
+                        </form>
+                    </span>
+                </a> *@
+            </li>                    
+        </ul>
+    </div>
+    <!-- /.sidebar -->
+</aside>

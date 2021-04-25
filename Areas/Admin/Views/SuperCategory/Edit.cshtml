@@ -1,0 +1,70 @@
+@model SuperCategory
+
+@{   
+    ViewData["Title"] = "Edit";
+    ViewData["PageTitle"] = "Edit";
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="panel panel-bd ">
+            <div class="panel-body">
+                <form enctype="multipart/form-data" method="POST">
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor( model => model.Id)
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.ImageFile, htmlAttributes: new { @class = "control-label col-md-6" })
+                        <div class="col-md-10 custom-file">
+                            @Html.EditorFor(model => model.ImageFile, new { htmlAttributes = new { @class = "custom-file-input" } })
+                            <span class="custom-file-label" for="customFile">Choose file</span> 
+                            @Html.ValidationMessageFor(model => model.ImageFile, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.SubCategoryId)
+                        @Html.DropDownList("SubCategoryId", null, "--Select Category--", htmlAttributes: new { @class = "form-control select2" })
+                        <a asp-area="Admin" asp-action="Edit" asp-controller="SubCategory" 
+                        asp-route-id="@Model.SubCategoryId" class="btn btn-link"
+                        asp-route-returnUrl="/Admin/SuperCategory/Edit/@Model.SubCategoryId" >Edit Sub Category</a>
+                        @Html.ValidationMessageFor(model => model.SubCategoryId, "", new { @class = "text-danger" })                                    
+                    </div>
+                    
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.SuperCategoryName)
+                        @Html.EditorFor(model => model.SuperCategoryName, new { htmlAttributes = new { @class = "form-control", @placeholder="Super Category" } })
+                        @Html.ValidationMessageFor(model => model.SuperCategoryName, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.IsDisplay)
+                        @Html.CheckBoxFor(model => model.IsDisplay)
+                        @Html.ValidationMessageFor(model => model.IsDisplay, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        <a asp-area="Admin" asp-action="Index" class="btn btn-info">Back</a>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script type="text/javascript">  
+        // Add the following code if you want the name of the file appear on select  
+        $(".custom-file-input").on("change", function () {  
+            var fileName = $(this).val().split("\\").pop();  
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);  
+        });  
+        $(document).ready(function () {
+            $(".Master").addClass("active");
+        });
+    
+    </script> 
+}

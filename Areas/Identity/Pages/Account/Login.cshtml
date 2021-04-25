@@ -1,0 +1,70 @@
+@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="wrap-breadcrumb">
+    <ul>
+        <li class="item-link"><a asp-action="Index" asp-controller="Home" asp-area="" class="link">home</a></li>
+        <li class="item-link"><span>login</span></li>
+    </ul>
+</div>
+
+<div class="row">
+
+    <div class=" main-content-area">
+        <div class="wrap-login-item ">
+            <div class="col-lg-8 col-sm-8 col-md-8 col-xs-12 col-lg-offset-3">
+                <!-- login form -->
+                <div class="login-form form-item ">
+                    <form id="account" method="post">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div class="form-group wrap-title col-md-8">                       
+                            <h3 class="form-title">Log in to your account</h3>
+                        </div>                        
+                        <div class="form-group wrap-input col-md-8">
+                            <label asp-for="Input.Username"></label>
+                            <input asp-for="Input.Username" class="form-control" placeholder="Username/Mobile Number/Email Address"/>
+                            <span asp-validation-for="Input.Username" class="text-danger"></span>
+
+                        </div>
+                        <div class="form-group wrap-input col-md-8">
+                            <label asp-for="Input.Password"></label>
+                            <input asp-for="Input.Password" class="form-control" placeholder="************"/>
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group wrap-input col-md-5" style="margin-right: -33px">
+                                <div class="checkbox">
+                                    <label asp-for="Input.RememberMe">
+                                        <input asp-for="Input.RememberMe"/>
+                                        @Html.DisplayNameFor(m => m.Input.RememberMe)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group wrap-input col-md-4" style="margin-top: 5px; font-weight: bold;">
+                                <a class="link-function left-position" id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+                            </div>
+                        </div>
+                        <div class="form-group wrap-input col-md-8">
+                            <input type="submit" class="btn btn-submit" value="Login" name="submit">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!--end main products area-->
+
+</div>
+<!--end row-->
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />    
+}

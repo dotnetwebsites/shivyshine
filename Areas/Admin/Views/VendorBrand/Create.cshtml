@@ -1,0 +1,103 @@
+@using Shivyshine.Data
+
+@inject ApplicationDbContext _repository
+
+@model VendorBrand
+
+@{   
+    ViewData["Title"] = "Create";
+    ViewData["PageTitle"] = "Create";
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="panel panel-bd ">
+            <div class="panel-body">
+                <form method="POST">
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.VendorId)
+                        @Html.DropDownList("VendorId", null, "--Select Vendor--", htmlAttributes: new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.VendorId, "", new { @class = "text-danger" })                   
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.BrandId)
+                        @Html.DropDownList("BrandId", null, "--Select Brand--", htmlAttributes: new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.BrandId, "", new { @class = "text-danger" })                   
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        <a asp-area="Admin" asp-action="Index" class="btn btn-info">Back</a>
+                        <button type="submit" class="btn btn-primary">Create</button>                        
+                    </div>
+                </form>
+
+                <div class="panel-body">                
+                    <div class="table-scrolled">                                        
+                        <table class="example display table table-hover dataTable" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th>Sr No</th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.VendorId)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.BrandId)
+                                    </th>
+                                    
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    var vendorBrands = _repository.vendorBrands.Where(p=>p.BrandId == 1).ToList();
+                                }
+
+                                @foreach (var item in vendorBrands.Select((x, i) => new
+                                                                    {
+                                                                        Data = x,
+                                                                        Index = i +
+                                                                        1
+                                                                    }))
+                                {
+                                    <tr>
+                                        <td>@item.Index</td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Data.VendorId)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Data.BrandId)
+                                        </td>
+                                        <td>                               
+                                            <a asp-area="Admin" asp-action="Edit" asp-route-id="@item.Data.Id" class="btn btn-add btn-sm" title="Edit Record">
+                                                <i class="fa fa-pencil"></i>
+                                            </a> |
+                                            <a asp-area="Admin" asp-action="Delete" asp-route-id="@item.Data.Id" class="btn btn-danger btn-sm" title="Delete Record"
+                                                onclick="return DeleteConfirm();">
+                                                <i class="fa fa-info-circle"></i>
+                                            </a>
+                                            
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $(".Master").addClass("active");
+        });
+    </script>    
+}

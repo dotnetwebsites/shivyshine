@@ -1,0 +1,140 @@
+@page
+@model ChangePhoneNumberModel
+@{
+    ViewData["Title"] = "Manage Phone Number";
+    Layout = "~/Views/Shared/_Layout.cshtml";    
+}
+
+<div class="wrap-breadcrumb">
+    <ul>
+        <li class="item-link"><a asp-action="Index" asp-controller="Home" asp-area="" class="link">home</a></li>
+        <li class="item-link"><span>Manage Phone Number</span></li>
+    </ul>
+</div>
+
+<div class="row">
+
+    <div class=" main-content-area">
+        <div class="wrap-login-item ">
+            <div class="col-lg-8 col-sm-8 col-md-8 col-xs-12 col-lg-offset-3">
+                
+                <!-- phone form -->
+                <div class="phone-form form-item ">
+                    <form id="account" method="post">
+                        <partial name="_StatusMessage" model="Model.StatusMessage" />
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div class="form-group wrap-input col-md-8">                       
+                            <h3 class="form-title">Manage Phone Number</h3>
+                        </div>                        
+                        
+                            @if (Model.IsPhoneNumberConfirmed)
+                            {
+                                <div class="form-group wrap-input col-md-8">
+                                    <label asp-for="PhoneNumber"></label>
+                                    <input asp-for="PhoneNumber" class="form-control" disabled />
+                                    <div class="input-group-append">
+                                        <i class="text-success fa fa-check"></i>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {                                
+                                <div class="form-group wrap-input col-md-8">
+                                    <label asp-for="PhoneNumber"></label>
+                                    <input asp-for="PhoneNumber" class="form-control" disabled />
+                                    <span class="text-danger" style="font-size: small;">Your mobile no not confirmed yet</span>
+                                    <button id="phonenumber-verification" type="submit" asp-page-handler="SendVerificationPhoneNumber" 
+                                    class="btn-link" style="font-size: small;content: none;">
+                                    Send OTP
+                                    </button>
+                                    <span id="demo" class="text-danger" style="font-size: small;"></span>
+                                </div>
+                                
+                            }
+
+                        <div class="form-group wrap-input col-md-8">
+                            <label asp-for="Input.NewPhoneNumber"></label>
+                            <input asp-for="Input.NewPhoneNumber" class="form-control" />
+                            <span asp-validation-for="Input.NewPhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group wrap-input col-md-8">
+                            <button id="change-phone-button" type="submit" asp-page-handler="ChangePhoneNumber" class="btn btn-success">Update Phone Number</button>                                                    
+                            <button id="btn-cancel" type="submit" asp-page-handler="SendCancelPhone" class="btn btn-primary">Cancel</button>                           
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!--end main products area-->
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function(){            
+            //var val = getCookie("isTimer");
+            
+            //if(val==1)
+            //{
+            //    startTimer();
+            //}
+            //else
+            //{
+            //    document.getElementById("demo").innerHTML = "";
+            //}
+
+        });
+
+        function startTimer()
+        {          
+            if(getCookie("minCount") == "")
+                setCookie("minCount", 61, 365);
+         
+            var countDown = getCookie("minCount");
+
+            var x = setInterval(function() {
+
+            document.getElementById("demo").innerHTML = "Resend after 00:" + (countDown<=9 ? "0" + countDown-- : countDown--);
+            document.getElementById("phonenumber-verification").setAttribute("disabled","disabled");
+            
+            setCookie("minCount", countDown, 365);
+      
+            if (countDown < 0) {
+                clearInterval(x);
+                document.getElementById("demo").innerHTML = "";
+                document.getElementById('phonenumber-verification').removeAttribute("disabled");
+                setCookie("isTimer", 0, 365);
+                setCookie("minCount", "", 365);                
+            }
+            }, 1000);
+        } 
+
+        function getCookie(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+        }
+
+        function setCookie(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires="+d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+
+    </script>
+}

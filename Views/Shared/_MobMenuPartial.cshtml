@@ -1,0 +1,73 @@
+@using Shivyshine.Data
+
+@inject ApplicationDbContext _repository
+
+<div class="mercado-clone-wrap">
+    <div class="mercado-panels-actions-wrap">
+        <a class="mercado-close-btn mercado-close-panels" href="#">x</a>
+    </div>
+    <div class="mercado-panels1">
+        <div id="mercado-main-panel" class="mercado-panel mercado-main-panel mercado-panel-opened">
+            <ul class="depth-01">
+                <li class="menu-item"><a data-target="#mercado-panel-mercado_main" class="mercado-next-panel"
+                href="#mercado-panel-mercado_main"></a><a title="Main menu" class="mercado-item-title"
+                href="javascript:;">Main menu</a></li>
+            </ul>
+        </div>
+
+        <div id="mercado-panel-mercado_main" class="mercado-panel mercado-hidden"
+            data-parent-panel="mercado-main-panel">
+            <ul class="depth-01">
+                <li class="menu-item home-icon clone-menu-item">
+                    <a asp-area="" asp-action="Index" asp-controller="Home" class="link-term mercado-item-title"><i class="fa fa-home"
+                            aria-hidden="true"></i></a>
+                </li>                
+                @foreach (var cat in _repository.Categories.ToList())
+                {
+                    <li class="menu-item menu-item-has-children item-megamenu clone-menu-item">
+                        <a class="mercado-next-panel"
+                            href="#mercado-panel-@cat.Id" data-target="#mercado-panel-@cat.Id"></a>
+                        <a asp-area="" asp-action="Search" asp-controller="SubCategory"
+                        asp-route-id="@cat.Id" class="link-term mercado-item-title">@cat.CategoryName</a>
+                    </li>                    
+                }
+
+            </ul>
+        </div>
+
+        @foreach (var cats in _repository.Categories.ToList())
+        {
+            var subCats = _repository.SubCategories.Where(p=>p.CategoryId == cats.Id).ToList();
+            <div id="mercado-panel-@cats.Id" class="mercado-panel mercado-sub-panel mercado-hidden">
+                <div class="wrap-megamenu">
+                    <div class="megamenu-content">
+                        <div class="row">
+                            @foreach (var subcat in subCats)
+                            {
+                                var supCats = _repository.SuperCategories.Where(p=>p.SubCategoryId == subcat.Id).ToList();
+                                <div class="custom-col-5">
+                                    <div class="wrap-vertical-nav">
+                                        <h2 class="menu-title">@subcat.SubCategoryName</h2>
+                                        <ul data-menuname="">
+                                            @foreach (var supcat in supCats.OrderBy(p=>p.SuperCategoryName))
+                                            {
+                                                <li class="menu-item clone-menu-item">
+                                                    @* <a asp-area="" asp-action="Search" asp-controller="SuperCategory"
+                                                    asp-route-id="@supcat.Id" class="link-term">@supcat.SuperCategoryName </a> *@
+                                                    <a asp-area="" asp-action="Search" asp-controller="Product"
+                                                    asp-route-id="@supcat.Id" class="link-term">@supcat.SuperCategoryName </a>
+                                                </li>    
+                                            }
+
+                                        </ul>
+                                    </div>
+                                </div>    
+                            }                            
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

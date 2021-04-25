@@ -1,0 +1,67 @@
+@model CreateRoleViewModel
+
+@{
+    ViewBag.Title = "Create Role";
+}
+
+<div class="breadcrumb-area">
+    <div class="container">
+        <div class="breadcrumb-content">
+            <ul>
+                <li><a asp-action="Index" asp-controller="Home">Home</a></li>
+                <li><a asp-action="Index" asp-controller="RoleManager">Role Manager</a></li>
+                <li class="active">Create</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="page-container">
+    <div class="page-content-wrapper">
+        <div class="page-content">
+            <div class="container">
+                <div class="page-content-inner">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="portlet light ">
+                                <div class="portlet-title">
+                                    <div class="caption font-dark">
+                                        <i class="icon-settings font-dark"></i>
+
+                                    </div>
+                                    <div class="actions">
+                                        <div class="btn-group btn-group">
+                                            
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <form method="post">
+                                            <div asp-validation-summary="All" class="text-danger"></div>
+
+                                            <div class="form-group">
+                                                <label asp-for="RoleName"></label>
+                                                <input asp-for="RoleName" class="form-control"/>
+                                                <span asp-asp-validation-for="RoleName" class="text-danger"></span>                
+                                            </div>
+
+                                            <button type="submit" class="btn btn-success">Create Role</button>
+                                            <a asp-action="Index" asp-controller="RoleManager" class="btn btn-success">Cancel</a>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>

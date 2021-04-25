@@ -1,0 +1,484 @@
+@model HomeViewModel //IEnumerable<Product>
+@using Shivyshine.Data
+
+@inject ApplicationDbContext _reposiroty
+
+@{
+    ViewData["title"] = "Sub Catagory";
+}
+
+
+        <div class="wrap-breadcrumb">
+            <ul>
+                <li class="item-link"><a asp-area="" asp-action="Index" asp-controller="Home" class="link">Home</a></li>
+                <li class="item-link"><span>Sub Category </span></li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="col-lg-9 col-md-8 col-sm-8 col-xs-12 main-content-area">
+                <div class="wrap-shop-control">
+                    <h1 class="shop-title">SUB CATEGORY</h1>
+                    <div class="wrap-right">
+                        <div class="sort-item orderby ">
+                            <select name="orderby" class="use-chosen">
+                                <option value="menu_order" selected="selected">Default sorting</option>
+                                <option value="price">Sort by price: low to high</option>
+                                <option value="price-desc">Sort by price: high to low</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+
+                    <ul class="product-list grid-products equal-container">
+                        
+                        @foreach (var prod in Model.Products.OrderBy(p => p.ProductName))
+                        {
+                            var unit = _reposiroty.ProductUnits.FirstOrDefault(p => p.ProductId == prod.Id);
+                            var shade = _reposiroty.Shades.FirstOrDefault(p => p.ProductId == prod.Id);
+
+                            var brand = await _reposiroty.Brands.FindAsync(prod.BrandId);
+                            
+                            //var img =_reposiroty.ProductImages.FirstOrDefault(p=>p.ProductId == prod.Id)?.ProductImageUrl;
+
+                            <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                                <div class="product product-style-2 equal-elem ">
+                                    <div class="product-thumnail">
+                                        <a asp-action="Details" asp-controller="Product" 
+                                        asp-route-id="@prod?.Id" asp-route-unitid="@unit?.Id" asp-route-shadeid="@shade?.Id"
+                                        title="Click here to view product details">
+                                        @if(prod.IsActive){
+                                            if(prod.IsPreviewShade){
+                                                var imgshd = _reposiroty.ProductImages?.FirstOrDefault(p => p.ProductId == prod.Id && p.ShadeId == shade.Id)?.ProductImageUrl;
+                                                @* <img src="assets/images/p1.jpg" alt=""> *@
+                                                <img src="@imgshd" alt="ProdImage">
+                                            }
+                                            else{
+                                                if(unit!=null && _reposiroty.ProductImages.Any(p => p.ProductId == prod.Id && p.ProductUnitId == unit.Id))
+                                                {
+                                                    var img = _reposiroty.ProductImages.FirstOrDefault(p => p.ProductId == prod.Id && p.ProductUnitId == unit.Id).ProductImageUrl;
+                                                    <img src="@img" alt="ProdUnitImage">
+                                                }                                            
+                                            }                  
+                                        }else{
+                                            var pimg = _reposiroty.ProductImages.FirstOrDefault(p => p.ProductId == prod.Id).ProductImageUrl;
+                                            <img src="@pimg" style="opacity: 0.5;" alt="">
+                                        } 
+                                        @* <a href="#" title="">
+                                            
+                                            <figure><img src="@img" alt="ProductImage"></figure>
+                                        </a> *@
+                                        </a>
+                                        <div class="group-flash">
+                                            @if(prod.IsActive) {
+                                                <span class="flash-item sale-label">In Stock</span>
+                                            }else{
+                                                <span class="flash-item sale-label">Out of Stock</span>
+                                            }
+                                        </div>
+                                        <div class="wrap-btn">
+                                            @* <a asp-action="Details" asp-controller="Product" asp-route-id="@prod.Id"  class="function-link">View Details</a> *@
+                                            <a asp-action="Details" asp-controller="Product" asp-route-id="@prod.Id" asp-route-unitid="@unit?.Id" 
+                                            asp-route-shadeid="@shade?.Id" class="function-link">View Details</a>
+                                        </div>
+                                    </div>
+                                    <div class="product-info">
+                                        <a asp-action="Details" asp-controller="Product" asp-route-id="@prod.Id" asp-route-unitid="@unit?.Id" class="product-name">                                
+                                        <span>@brand.BrandName @prod.ProductName</span></a>
+                                        <div class="wrap-price">
+                                            <span class="product-price">
+                                                <i class="fa fa-inr"></i> @unit?.Price.ToString("#,##0.00")
+                                            </span>
+                                            @if(unit?.PriceDel != 0){
+                                                <span class="product-price pull-right"><del>
+                                                    <i class="fa fa-inr"></i> @unit?.PriceDel.ToString("#,##0.00")
+                                                </del></span>
+                                            }
+                                         </div>
+                                        @if(prod.IsActive){
+                                            if(prod.IsPreviewShade){                                    
+                                                <a asp-action="Details" asp-controller="Product" asp-route-id="@prod.Id" 
+                                                    asp-route-unitid="@unit?.Id" asp-route-shadeid="@shade?.Id"
+                                                class="btn btn-danger btn-sm">PREVIEW SHADES</a>
+                                            }
+                                            else if(prod.IsPreviewSize){
+                                                <a asp-action="Details" asp-controller="Product" asp-route-id="@prod.Id"
+                                                asp-route-unitid="@unit?.Id"
+                                                class="btn btn-danger btn-sm">PREVIEW SIZE</a>                                    
+                                            }
+                                            else{
+                                                <a asp-action="AddToCart" asp-controller="Home" 
+                                                asp-route-id="@prod.Id" asp-route-unitid="@unit?.Id" class="btn btn-danger btn-sm">ADD TO BAG</a>
+                                            }                                
+                                        }else{
+                                            <button class="btn btn-danger btn-sm" disabled="disabled">Out of Stock</button>
+                                        }
+                                    </div>
+                                </div>
+
+                            </li>
+                        }
+
+@*                         
+                        <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                            <div class="product product-style-2 equal-elem ">
+                                <div class="product-thumnail">
+                                    <a href="#" title="">
+                                        <figure><img src="assets/images/p1.jpg" alt=""></figure>
+                                    </a>
+                                    <div class="group-flash">
+                                        <span class="flash-item sale-label">In Stock</span>
+                                    </div>
+                                    <div class="wrap-btn">
+                                        <a href="#" class="function-link">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <a href="#" class="product-name"><span>Product Name</span></a>
+                                    <div class="wrap-price"><span class="product-price">Rs. 3,599.00</span><span
+                                            class="product-price pull-right"><del>Rs. 3,599.00 </del></span></div>
+                                    <a href="#" class="btn btn-danger btn-sm" style="">Add To Cart</a>
+                                </div>
+                            </div>
+
+                        </li>
+                        <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                            <div class="product product-style-2 equal-elem ">
+                                <div class="product-thumnail">
+                                    <a href="#" title="">
+                                        <figure><img src="assets/images/p1.jpg" alt=""></figure>
+                                    </a>
+                                    <div class="group-flash">
+                                        <span class="flash-item sale-label">In Stock</span>
+                                    </div>
+                                    <div class="wrap-btn">
+                                        <a href="#" class="function-link">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <a href="#" class="product-name"><span>Product Name</span></a>
+                                    <div class="wrap-price"><span class="product-price">Rs. 3,599.00</span><span
+                                            class="product-price pull-right"><del>Rs. 3,599.00 </del></span></div>
+                                    <a href="#" class="btn btn-danger btn-sm" style="">Add To Cart</a>
+                                </div>
+                            </div>
+
+                        </li>
+                        <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                            <div class="product product-style-2 equal-elem ">
+                                <div class="product-thumnail">
+                                    <a href="#" title="">
+                                        <figure><img src="assets/images/p1.jpg" alt=""></figure>
+                                    </a>
+                                    <div class="group-flash">
+                                        <span class="flash-item sale-label">In Stock</span>
+                                    </div>
+                                    <div class="wrap-btn">
+                                        <a href="#" class="function-link">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <a href="#" class="product-name"><span>Product Name</span></a>
+                                    <div class="wrap-price"><span class="product-price">Rs. 3,599.00</span><span
+                                            class="product-price pull-right"><del>Rs. 3,599.00 </del></span></div>
+                                    <a href="#" class="btn btn-danger btn-sm" style="">Add To Cart</a>
+                                </div>
+                            </div>
+
+                        </li>
+                        <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                            <div class="product product-style-2 equal-elem ">
+                                <div class="product-thumnail">
+                                    <a href="#" title="">
+                                        <figure><img src="assets/images/p1.jpg" alt=""></figure>
+                                    </a>
+                                    <div class="group-flash">
+                                        <span class="flash-item sale-label">In Stock</span>
+                                    </div>
+                                    <div class="wrap-btn">
+                                        <a href="#" class="function-link">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <a href="#" class="product-name"><span>Product Name</span></a>
+                                    <div class="wrap-price"><span class="product-price">Rs. 3,599.00</span><span
+                                            class="product-price pull-right"><del>Rs. 3,599.00 </del></span></div>
+                                    <a href="#" class="btn btn-danger btn-sm" style="">Add To Cart</a>
+                                </div>
+                            </div>
+
+                        </li>
+                        <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                            <div class="product product-style-2 equal-elem ">
+                                <div class="product-thumnail">
+                                    <a href="#" title="">
+                                        <figure><img src="assets/images/p1.jpg" alt=""></figure>
+                                    </a>
+                                    <div class="group-flash">
+                                        <span class="flash-item sale-label">In Stock</span>
+                                    </div>
+                                    <div class="wrap-btn">
+                                        <a href="#" class="function-link">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <a href="#" class="product-name"><span>Product Name</span></a>
+                                    <div class="wrap-price"><span class="product-price">Rs. 3,599.00</span><span
+                                            class="product-price pull-right"><del>Rs. 3,599.00 </del></span></div>
+                                    <a href="#" class="btn btn-danger btn-sm" style="">Add To Cart</a>
+                                </div>
+                            </div>
+
+                        </li>
+                        <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                            <div class="product product-style-2 equal-elem ">
+                                <div class="product-thumnail">
+                                    <a href="#" title="">
+                                        <figure><img src="assets/images/p1.jpg" alt=""></figure>
+                                    </a>
+                                    <div class="group-flash">
+                                        <span class="flash-item sale-label">In Stock</span>
+                                    </div>
+                                    <div class="wrap-btn">
+                                        <a href="#" class="function-link">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <a href="#" class="product-name"><span>Product Name</span></a>
+                                    <div class="wrap-price"><span class="product-price">Rs. 3,599.00</span><span
+                                            class="product-price pull-right"><del>Rs. 3,599.00 </del></span></div>
+                                    <a href="#" class="btn btn-danger btn-sm" style="">Add To Cart</a>
+                                </div>
+                            </div>
+
+                        </li>
+                        <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                            <div class="product product-style-2 equal-elem ">
+                                <div class="product-thumnail">
+                                    <a href="#" title="">
+                                        <figure><img src="assets/images/p1.jpg" alt=""></figure>
+                                    </a>
+                                    <div class="group-flash">
+                                        <span class="flash-item sale-label">In Stock</span>
+                                    </div>
+                                    <div class="wrap-btn">
+                                        <a href="#" class="function-link">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <a href="#" class="product-name"><span>Product Name</span></a>
+                                    <div class="wrap-price"><span class="product-price">Rs. 3,599.00</span><span
+                                            class="product-price pull-right"><del>Rs. 3,599.00 </del></span></div>
+                                    <a href="#" class="btn btn-danger btn-sm" style="">Add To Cart</a>
+                                </div>
+                            </div>
+
+                        </li>
+                        <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                            <div class="product product-style-2 equal-elem ">
+                                <div class="product-thumnail">
+                                    <a href="#" title="">
+                                        <figure><img src="assets/images/p1.jpg" alt=""></figure>
+                                    </a>
+                                    <div class="group-flash">
+                                        <span class="flash-item sale-label">In Stock</span>
+                                    </div>
+                                    <div class="wrap-btn">
+                                        <a href="#" class="function-link">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <a href="#" class="product-name"><span>Product Name</span></a>
+                                    <div class="wrap-price"><span class="product-price">Rs. 3,599.00</span><span
+                                            class="product-price pull-right"><del>Rs. 3,599.00 </del></span></div>
+                                    <a href="#" class="btn btn-danger btn-sm" style="">Add To Cart</a>
+                                </div>
+                            </div>
+
+                        </li>
+                        <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                            <div class="product product-style-2 equal-elem ">
+                                <div class="product-thumnail">
+                                    <a href="#" title="">
+                                        <figure><img src="assets/images/p1.jpg" alt=""></figure>
+                                    </a>
+                                    <div class="group-flash">
+                                        <span class="flash-item sale-label">In Stock</span>
+                                    </div>
+                                    <div class="wrap-btn">
+                                        <a href="#" class="function-link">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <a href="#" class="product-name"><span>Product Name</span></a>
+                                    <div class="wrap-price"><span class="product-price">Rs. 3,599.00</span><span
+                                            class="product-price pull-right"><del>Rs. 3,599.00 </del></span></div>
+                                    <a href="#" class="btn btn-danger btn-sm" style="">Add To Cart</a>
+                                </div>
+                            </div>
+
+                        </li>
+                        <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                            <div class="product product-style-2 equal-elem ">
+                                <div class="product-thumnail">
+                                    <a href="#" title="">
+                                        <figure><img src="assets/images/p1.jpg" alt=""></figure>
+                                    </a>
+                                    <div class="group-flash">
+                                        <span class="flash-item sale-label">In Stock</span>
+                                    </div>
+                                    <div class="wrap-btn">
+                                        <a href="#" class="function-link">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <a href="#" class="product-name"><span>Product Name</span></a>
+                                    <div class="wrap-price"><span class="product-price">Rs. 3,599.00</span><span
+                                            class="product-price pull-right"><del>Rs. 3,599.00 </del></span></div>
+                                    <a href="#" class="btn btn-danger btn-sm" style="">Add To Cart</a>
+                                </div>
+                            </div>
+
+                        </li>
+                        <li class="col-lg-3 col-md-6 col-sm-6 col-xs-6 ">
+                            <div class="product product-style-2 equal-elem ">
+                                <div class="product-thumnail">
+                                    <a href="#" title="">
+                                        <figure><img src="assets/images/p1.jpg" alt=""></figure>
+                                    </a>
+                                    <div class="group-flash">
+                                        <span class="flash-item sale-label">In Stock</span>
+                                    </div>
+                                    <div class="wrap-btn">
+                                        <a href="#" class="function-link">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <a href="#" class="product-name"><span>Product Name</span></a>
+                                    <div class="wrap-price"><span class="product-price">Rs. 3,599.00</span><span
+                                            class="product-price pull-right"><del>Rs. 3,599.00 </del></span></div>
+                                    <a href="#" class="btn btn-danger btn-sm" style="">Add To Cart</a>
+                                </div>
+                            </div>
+
+                        </li> *@
+                    </ul>
+                </div>
+
+                <div class="wrap-pagination-info" style="display: none;">
+                    <ul class="page-numbers">
+                        <li><span class="page-number-item current">1</span></li>
+                        <li><a class="page-number-item" href="#">2</a></li>
+                        <li><a class="page-number-item" href="#">3</a></li>
+                        <li><a class="page-number-item next-link" href="#">Next</a></li>
+                    </ul>
+                    <p class="result-count">Showing 1-8 of 12 result</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 sitebar">
+                <div class="widget mercado-widget categories-widget">
+                    <h2 class="widget-title">Sort By</h2>
+                    <div class="widget-content">         
+                        <ul class="list-category loadCats">
+                            
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="widget mercado-widget filter-widget brand-widget">
+                    <h2 class="widget-title">Brand</h2>
+                    <div class="widget-content">
+                        <ul class="list-style vertical-list list-limited" data-show="6">
+                            @for (int i = 0; i < Model.Brands.Count(); i++)
+                            {
+                                @if(i<=6) {
+                                    <li class="list-item"><a class="filter-link activex" href="#">@Model.Brands[i].BrandName</a></li>
+                                }else{
+                                    <li class="list-item default-hiden"><a class="filter-link " href="#">@Model.Brands[i].BrandName</a></li>
+                                }
+                                
+                            }
+                            
+                            <li class="list-item"><a
+                                    data-label='Show less<i class="fa fa-angle-up" aria-hidden="true"></i>'
+                                    class="btn-control control-show-more" href="#">Show more<i class="fa fa-angle-down"
+                                        aria-hidden="true"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="widget mercado-widget filter-widget">
+                    <h2 class="widget-title">Color</h2>
+                    <div class="widget-content">
+                        <ul class="list-style vertical-list has-count-index">
+                            <li class="list-item"><a class="filter-link " href="#">Red <span>(217)</span></a></li>
+                            <li class="list-item"><a class="filter-link " href="#">Yellow <span>(179)</span></a></li>
+                            <li class="list-item"><a class="filter-link " href="#">Black <span>(79)</span></a></li>
+                            <li class="list-item"><a class="filter-link " href="#">Blue <span>(283)</span></a></li>
+                            <li class="list-item"><a class="filter-link " href="#">Grey <span>(116)</span></a></li>
+                            <li class="list-item"><a class="filter-link " href="#">Pink <span>(29)</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="widget mercado-widget filter-widget price-filter">
+                    <h2 class="widget-title">Price</h2>
+                    <div class="widget-content">
+                        <div id="slider-range"></div>
+                        <p>
+                            <label for="amount">Price:</label>
+                            <input type="text" id="amount" readonly>
+                            <button class="filter-submit">Filter</button>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+@section Scripts
+{
+    <script>
+
+        $(document).ready(function (){
+            loadCategories();
+
+        });
+        function loadCategories(){
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("LoadCategory","LayoutView", new { Area = "" })',
+                dataType:'json',
+                //data:{id: $("#CategoryId").val() },
+                success: function(data){
+                    var count = data["categories"].length > 8 ? 8 : data["categories"].length;                    
+                    for (var i = 0; i < count; i++) {
+                    
+                    var menus = "<li class='category-item has-child-cate'><a href='/SubCategory/Search/"+ data["categories"][i].id +"' class='cate-link'>" + 
+                    data["categories"][i].categoryName.toUpperCase() + 
+                    "</a><span class='toggle-control'>+</span><ul class='sub-cate'>";
+                    
+                    for (var j = 0; j < data["subCategories"].length; j++) {                        
+                        
+                        if(data["categories"][i].id == data["subCategories"][j].categoryId){                            
+                            menus += "<li class='category-item'><a href='/SuperCategory/Search/" + data["superCategories"][j].id + 
+                                "' class='cate-link'>"+ data["subCategories"][j].subCategoryName.toUpperCase() +"</a></li>";                    
+                        }                        
+                    }
+                   
+                    menus += "</ul></li>";
+                    $(".loadCats").append(menus);
+
+                    }
+
+                    
+        
+                },
+                error: function(ex){
+                    console.log(ex);
+                }
+            });
+        }        
+    </script>
+}

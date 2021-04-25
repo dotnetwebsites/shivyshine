@@ -1,0 +1,60 @@
+@model MainBanner
+
+@{   
+    ViewData["Title"] = "Edit";
+    ViewData["PageTitle"] = "Edit";
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="panel panel-bd ">
+            <div class="panel-body">
+                <form enctype="multipart/form-data" method="POST">
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(model => model.Id)
+
+                    <div class="form-group col-md-12">
+                        @Html.LabelFor(model => model.BannerImage, htmlAttributes: new { @class = "control-label col-md-6" })
+                        <div class="col-md-10 custom-file">
+                            @Html.EditorFor(model => model.BannerImage, new { htmlAttributes = new { @class = "custom-file-input" } })
+                            <span class="custom-file-label" for="customFile">Choose file</span> 
+                            @Html.ValidationMessageFor(model => model.BannerImage, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.BannerTitle)
+                        @Html.EditorFor(model => model.BannerTitle, new { htmlAttributes = new { @class = "form-control", @placeholder="Banner Title" } })
+                        @Html.ValidationMessageFor(model => model.BannerTitle, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.RedirectedUrl)
+                        @Html.EditorFor(model => model.RedirectedUrl, new { htmlAttributes = new { @class = "form-control", @placeholder="Location" } })
+                        @Html.ValidationMessageFor(model => model.RedirectedUrl, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        <a asp-area="Admin" asp-action="Index" class="btn btn-info">Back</a>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $(".Master").addClass("active");
+        });
+        
+        $(".custom-file-input").on("change", function () {  
+            var fileName = $(this).val().split("\\").pop();  
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);  
+        });
+    </script>
+}

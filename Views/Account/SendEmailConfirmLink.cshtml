@@ -1,0 +1,67 @@
+@model SendEmailConfirmLinkViewModel
+
+@{
+    ViewData["Title"] = "Manage Email";    
+}
+
+<div class="breadcrumb-area">
+    <div class="container">
+        <h5>
+            @Html.ValidationSummary(true, "", new { @class = (Model.IsSuccess ?  "text-success" : "text-danger") })
+        </h5>
+    </div>
+</div>
+
+<div class="page-container">
+    <div class="page-content-wrapper">
+        <div class="page-content">
+            <div class="container">
+                <div class="page-content-inner">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="portlet light ">
+                                
+                                <div class="portlet-body" style="margin-bottom: 10%;margin-top: 1%;">
+                                   <div class="form-horizontal"></div>                                                                           
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <br />
+                                                <br />
+                                                <form method="post">
+                                                    
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.Value, htmlAttributes: new { @class = "control-label col-md-6" })
+                                                        <div class="col-md-10">
+                                                            @Html.EditorFor(model => model.Value, 
+                                                            new { htmlAttributes = new { @class = "form-control", @placeholder=@Html.DisplayNameFor(m=>m.Value) }})
+                                                            @Html.ValidationMessageFor(model => model.Value, "", new { @class = "text-danger" })
+                                                        </div>                                                        
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-10">
+                                                            <button id="change-email-button" type="submit" class="btn btn-success">Send Confirmation Link</button>
+                                                            <a href="/Home" class = "btn btn-primary">Cancel</a>
+                                                        </div> 
+
+                                                        
+                                                    </div>
+ 
+                                                </form>
+                                            </div>
+                                        </div>                                      
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

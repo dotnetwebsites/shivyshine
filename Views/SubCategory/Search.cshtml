@@ -1,0 +1,17 @@
+@model IEnumerable<SubCategory>
+
+@{
+    ViewData["Title"] = "Sub Category";
+}
+<div class="wrap-banner style-twin-default">
+    @foreach (var item in Model)
+    {
+        <div class="banner-item">
+            <a href="/SuperCategory/Search/@item.Id" 
+                class="link-banner banner-effect-3">                
+                <figure><img src="/subcategory/@item.ImageUrl" alt=""></figure>
+            </a>            
+            <p><a href="/SuperCategory/Search/@item.Id">@item.SubCategoryName</a></p>
+        </div>   
+    }        
+</div>

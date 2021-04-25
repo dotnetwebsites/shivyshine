@@ -1,0 +1,53 @@
+@model ContactUSView
+
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+
+<div class="row">
+
+    <div class="form-group wrap-title col-md-8">                       
+        <h3 class="form-title">Tell Us Your Message</h3>
+    </div>
+    <div class="col-lg-6 col-md-8 col-sm-8 col-xs-12   main-content-area">        
+        <div class="wrap-product-detail">                        
+            @using (Html.BeginForm())
+            {                
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Name)
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @placeholder="Name" } })
+                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Email)
+                    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", @placeholder="Email" } })
+                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Subject)
+                    @Html.EditorFor(model => model.Subject, new { htmlAttributes = new { @class = "form-control", @placeholder="Subject" } })
+                    @Html.ValidationMessageFor(model => model.Subject, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Message)
+                    @Html.TextAreaFor(model => model.Message, 6, 6, new { @class = "form-control", @placeholder="Message" })
+                    @Html.ValidationMessageFor(model => model.Message, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Submit" class="btn btn-primary" />
+
+                </div>            
+            }
+        </div>
+    </div>
+
+
+</div>
+
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />    
+}

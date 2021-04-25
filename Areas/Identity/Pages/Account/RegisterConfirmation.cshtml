@@ -1,0 +1,81 @@
+@page
+@model RegisterConfirmationModel
+@{
+    ViewData["Title"] = "Register confirmation";
+}
+
+<div class="breadcrumb-area">
+    <div class="container">
+        <div class="breadcrumb-content">
+            <li class="active">@ViewData["Title"]</li>
+        </div>
+    </div>
+</div>
+
+
+<div class="page-container" style="min-height: 50%!important;">
+    <div class="page-content-wrapper">
+        <div class="page-content">
+            <div class="container">
+                <div class="page-content-inner">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-3">
+
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="portlet light">
+                                        <div class="portlet-title">
+                                            <div class="caption font-dark">
+                                                <i class="icon-settings font-dark"></i>
+                                                <h3 class="black" style="padding: 30px 0px 20px 0px;">@ViewData["Title"]
+                                                </h3>
+                                            </div>
+                                        </div>
+
+                                        <div class="portlet-body">
+
+                                            <div class="a-section">
+                                                <div class="a-box a-vertical">
+                                                    @{
+                                                        if (@Model.DisplayConfirmAccountLink)
+                                                        {
+                                                            <p>
+                                                                This app does not currently have a real email sender registered,
+                                                                see <a href="https://aka.ms/aspaccountconf">these docs</a> for
+                                                                how to configure a real email sender.
+                                                                Normally this would be emailed: <a id="confirm-link"
+                                                                    href="@Model.EmailConfirmationUrl">Click here to confirm
+                                                                    your account</a>
+                                                            </p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <h6 class="black">
+                                                                Please check your email and confirm your account. <a
+                                                                    asp-area="" asp-controller="Home" asp-action="Index" > Go Home</a>
+                                                            </h6>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+            <br />
+            <br />
+            <br />
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,183 @@
+@model Product
+
+@{   
+    ViewData["Title"] = "Create";
+    ViewData["PageTitle"] = "Create";
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="panel panel-bd ">
+            <div class="panel-body">
+                <form enctype="multipart/form-data" method="POST">
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.BrandId)
+                        @Html.DropDownList("BrandId", null, "--Select Brand--", htmlAttributes: new { @class = "form-control select2" })
+                        @Html.ValidationMessageFor(model => model.BrandId, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.CategoryId)
+                        @Html.DropDownList("CategoryId", null, "--Select Category--", htmlAttributes: new { @class = "form-control select2 ddlCategory" })
+                        @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })                        
+                    </div>
+                    
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.SubCategoryId)
+                        <select asp-for="SubCategoryId" asp-items="@ViewBag.SubCategoryId" class="form-control">
+                            <option value="-1">Select Sub Category</option>
+                        </select>
+                        @Html.ValidationMessageFor(model => model.SubCategoryId, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.SuperCategoryId)
+                        <select asp-for="SuperCategoryId" asp-items="@ViewBag.SuperCategoryId" class="form-control">
+                            <option value="-1">Select Super Category</option>
+                        </select>
+                        @Html.ValidationMessageFor(model => model.SuperCategoryId, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.ProductName)
+                        @Html.EditorFor(model => model.ProductName, new { htmlAttributes = new { @class = "form-control", @placeholder="Product Name" } })
+                        @Html.ValidationMessageFor(model => model.ProductName, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.HsnCode)
+                        @Html.EditorFor(model => model.HsnCode, new { htmlAttributes = new { @class = "form-control", @placeholder="HSN Code" } })
+                        @Html.ValidationMessageFor(model => model.HsnCode, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    @* <div class="form-group col-md-3">
+                        @Html.LabelFor(model => model.Quantity)
+                        @Html.DropDownList("QuantityType", null, null, htmlAttributes: new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.QuantityType, "", new { @class = "text-danger" })
+                        @Html.EditorFor(model => model.Quantity, new { htmlAttributes = new { @class = "form-control", @placeholder="Quantity" } })
+                        @Html.ValidationMessageFor(model => model.Quantity, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        @Html.LabelFor(model => model.GSTIN)
+                        @Html.EditorFor(model => model.GSTIN, new { htmlAttributes = new { @class = "form-control", @placeholder="GST IN %" } })
+                        @Html.ValidationMessageFor(model => model.GSTIN, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        @Html.LabelFor(model => model.MRP)
+                        @Html.EditorFor(model => model.MRP, new { htmlAttributes = new { @class = "form-control", @placeholder="MRP" } })
+                        @Html.ValidationMessageFor(model => model.MRP, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label>Discounts</label>
+                        @Html.EditorFor(model => model.DiscountInRs, new { htmlAttributes = new { @class = "form-control", @placeholder="Discount in Rs" } })
+                        @Html.ValidationMessageFor(model => model.DiscountInRs, "", new { @class = "text-danger" })
+                        @Html.EditorFor(model => model.DiscountInPer, new { htmlAttributes = new { @class = "form-control", @placeholder="Discount in Per" } })
+                        @Html.ValidationMessageFor(model => model.DiscountInPer, "", new { @class = "text-danger" })
+                    </div> *@
+
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.Specification)
+                        @Html.TextAreaFor(model => model.Specification, new { @class = "form-control", @placeholder="Specification", @rows="6"})
+                        @Html.ValidationMessageFor(model => model.Specification, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        @Html.LabelFor(model => model.HowToUse)
+                        @Html.TextAreaFor(model => model.HowToUse, new { @class = "form-control", @placeholder="How to use", @rows="6"})
+                        @Html.ValidationMessageFor(model => model.HowToUse, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    @* <div class="form-group col-md-12">
+                        @Html.LabelFor(model => model.ProductImage, htmlAttributes: new { @class = "control-label col-md-6" })
+                        <div class="col-md-10 custom-file">
+                            @Html.EditorFor(model => model.ProductImage, new { htmlAttributes = new { @class = "custom-file-input" } })
+                            <span class="custom-file-label" for="customFile">Choose file</span> 
+                            @Html.ValidationMessageFor(model => model.ProductImage, "", new { @class = "text-danger" })
+                        </div>
+                    </div> *@
+                    
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.IsActive)
+                        @Html.CheckBoxFor(model => model.IsActive, new {@checked = "checked"})
+                        @* @Html.RadioButtonFor(model => model.IsActive, true, new { @id = "IsDiscontinueActive" }) Active
+                        @Html.RadioButtonFor(model => model.IsActive, false, new { @id = "IsDiscontinueDActive" }) Discontinued *@
+                        @Html.ValidationMessageFor(model => model.IsActive, "", new { @class = "text-danger" })                                    
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        @Html.LabelFor(model => model.IsDisplay)
+                        @Html.CheckBoxFor(model => model.IsDisplay, new {@checked = "checked"})
+                        @Html.ValidationMessageFor(model => model.IsDisplay, "", new { @class = "text-danger" })                                    
+                    </div>
+                    
+                    <div class="form-group col-md-12">
+                        <a asp-area="Admin" asp-action="Index" class="btn btn-info">Back</a>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />  
+       
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".Master").addClass("active"); 
+            
+            $("#CategoryId").change(function(){
+                $("#SubCategoryId").empty();
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("LoadSubCategory")',
+                    dataType:'json',
+                    data:{id: $("#CategoryId").val() },
+                    success: function(data){
+                        $("#SubCategoryId").append('<option value="-1">Select Sub Category</option>');
+
+                        $.each(data, function(i, d){
+                            $("#SubCategoryId").append('<option value="' + d.value +'">' + d.text + '</option>');
+                        });
+                    },
+                    error: function(ex){
+                        console.log(ex);
+                    }
+                });
+            });  
+
+            $("#SubCategoryId").change(function(){
+                $("#SuperCategoryId").empty();
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("LoadSuperCategory")',
+                    dataType:'json',
+                    data:{id: $("#SubCategoryId").val() },
+                    success: function(data){
+                        $("#SuperCategoryId").append('<option value="-1">Select Super Category</option>');
+
+                        $.each(data, function(i, d){
+                            $("#SuperCategoryId").append('<option value="' + d.value +'">' + d.text + '</option>');
+                        });
+                    },
+                    error: function(ex){
+                        console.log(ex);
+                    }
+                });
+            });  
+
+        });
+        $(".custom-file-input").on("change", function () {  
+            var fileName = $(this).val().split("\\").pop();  
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);  
+        }); 
+
+    </script>
+}

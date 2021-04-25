@@ -1,0 +1,165 @@
+﻿@model HomeViewModel
+@using Shivyshine.Areas.Identity.Data
+@using Shivyshine.Data
+@using Microsoft.EntityFrameworkCore
+
+@inject ApplicationDbContext _reposiroty
+
+@{
+    ViewData["Title"] = "Home Page";        
+}
+
+<div class="wrap-main-slide">
+    <div class="slide-carousel owl-carousel style-nav-1" data-items="1" data-loop="true" data-autoplay="true"
+        data-nav="true" data-dots="false">
+        @foreach (var banner in Model.MainBanners)
+        {
+            <a href="@banner.RedirectedUrl">
+                <div class="item-slide">
+                    <img src="/mainbanner/@banner.BannerUrl" alt="" class="img-slide">
+                </div>
+            </a>
+        }
+        
+        @* <div class="item-slide">
+            <img src="assets/images/banner2.jpg" alt="" class="img-slide">
+        </div>
+        <div class="item-slide">
+            <img src="assets/images/banner3.jpg" alt="" class="img-slide">
+        </div> *@
+
+    </div>
+
+</div>
+
+<div class="our-team-info">
+    <h4 class="title-box">Top Categories </h4>
+    <div class="our-staff">
+        <div class="slide-carousel owl-carousel style-nav-1 equal-container" data-items="5" data-loop="false"
+            data-nav="true" data-dots="false" data-margin="30"
+            data-responsive='{"0":{"items":"1"},"480":{"items":"2"},"768":{"items":"3"},"992":{"items":"3"},"1200":{"items":"4"}}'>
+            @foreach (var item in Model.Categories.OrderBy(p => p.CategoryName))
+            {
+            <div class="team-member equal-elem">
+                <div class="media">
+                    <a href="/SubCategory/Search/@item.Id">
+                        <figure><img src="/category/@item.ImageUrl" alt=""></figure>
+                    </a>
+
+                </div>
+                <div class="info">
+                    <a href="/SubCategory/Search/@item.Id" class="name text-center">@item.CategoryName</a>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+@{
+    var count = 1;
+}
+@foreach (var item in Model.SuperCategories.OrderBy(p => p.SuperCategoryName))
+{        
+    <div class="wrap-show-advance-info-box style-1 has-countdown">
+        <h3 class="title-box">@item.SuperCategoryName</h3>
+        <div class="wrap-products slide-carousel owl-carousel style-nav-1 equal-container " data-items="5" data-loop="false"
+            data-nav="true" data-dots="false"
+            data-responsive='{"0":{"items":"1"},"480":{"items":"2"},"768":{"items":"3"},"992":{"items":"4"},"1200":{"items":"5"}}'>
+            @foreach (var prod in Model.Products.OrderBy(p => p.ProductName))
+            {
+                var unit = await _reposiroty.ProductUnits.FirstOrDefaultAsync(p => p.ProductId == prod.Id);
+                var shade = await _reposiroty.Shades.FirstOrDefaultAsync(p => p.ProductId == prod.Id);
+                
+                
+                @if(prod.SuperCategoryId == item.Id){                                      
+                    <div class="product product-style-2 equal-elem ">
+                        <div class="product-thumnail">
+                            <a asp-action="Details" asp-controller="Product" 
+                                asp-route-id="@prod?.Id" asp-route-unitid="@unit?.Id" asp-route-shadeid="@shade?.Id"
+                                title="Click here to view product details">
+                                <figure>                                    
+                                    @if(prod.IsActive){
+                                        if(prod.IsPreviewShade){
+                                            var imgshd = (await _reposiroty.ProductImages?.FirstOrDefaultAsync(p => p.ProductId == prod.Id && p.ShadeId == shade.Id))?.ProductImageUrl;
+                                            @* <img src="assets/images/p1.jpg" alt=""> *@
+                                            <img src="@imgshd" alt="">
+                                        }
+                                        else{
+                                            if(unit!=null && (await _reposiroty.ProductImages.AnyAsync(p => p.ProductId == prod.Id && p.ProductUnitId == unit.Id)))
+                                            {
+                                                var img = (await _reposiroty.ProductImages.FirstOrDefaultAsync(p => p.ProductId == prod.Id && p.ProductUnitId == unit.Id)).ProductImageUrl;
+                                                <img src="@img" alt="ProdUnitImage">
+                                            }                                            
+                                        }                  
+                                    }else{
+                                        var pimg = (await _reposiroty.ProductImages.FirstOrDefaultAsync(p => p.ProductId == prod.Id)).ProductImageUrl;
+                                        <img src="@pimg" style="opacity: 0.5;" alt="">
+                                    }                                    
+                                </figure>
+                            </a>
+                            <div class="group-flash">
+                                @if(prod.IsActive) {
+                                    <span class="flash-item sale-label">In Stock</span>
+                                }else{
+                                    <span class="flash-item sale-label">Out of Stock</span>
+                                }
+                                
+                            </div>
+                            <div class="wrap-btn">
+                                <a asp-action="Details" asp-controller="Product" asp-route-id="@prod.Id" asp-route-unitid="@unit?.Id" 
+                                asp-route-shadeid="@shade?.Id" class="function-link">View Details</a>
+                            </div>
+                        </div>
+                        @{
+                            var br = await _reposiroty.Brands.FindAsync(prod.BrandId);
+                        }    
+                        <div class="product-info">
+                            <a asp-action="Details" asp-controller="Product" asp-route-id="@prod.Id" asp-route-unitid="@unit?.Id" class="product-name">                                
+                                <span>@br.BrandName @prod.ProductName</span></a>
+                            <div class="wrap-price"><span class="product-price">
+                                <i class="fa fa-inr"></i> @unit?.Price.ToString("#,##0.00")</span>
+                                @if(unit?.PriceDel != 0){
+                                    <span class="product-price pull-right"><del>
+                                        <i class="fa fa-inr"></i> @unit?.PriceDel.ToString("#,##0.00")
+                                    </del></span>
+                                }
+                            </div>
+                            @if(prod.IsActive){
+                                if(prod.IsPreviewShade){                                    
+                                    <a asp-action="Details" asp-controller="Product" asp-route-id="@prod.Id" 
+                                        asp-route-unitid="@unit?.Id" asp-route-shadeid="@shade?.Id"
+                                     class="btn btn-danger btn-sm">PREVIEW SHADES</a>
+                                }
+                                else if(prod.IsPreviewSize){
+                                    <a asp-action="Details" asp-controller="Product" asp-route-id="@prod.Id"
+                                    asp-route-unitid="@unit?.Id"
+                                     class="btn btn-danger btn-sm">PREVIEW SIZE</a>                                    
+                                }
+                                else{
+                                    <a asp-action="AddToCart" asp-controller="Home" 
+                                    asp-route-id="@prod.Id" asp-route-unitid="@unit?.Id" class="btn btn-danger btn-sm">ADD TO BAG</a>
+                                }                                
+                            }else{
+                                <button class="btn btn-danger btn-sm" disabled="disabled">Out of Stock</button>
+                            }
+                            
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    var subban = await _reposiroty.SubBanners?.FirstOrDefaultAsync(p => p.SupCatId == item.Id);
+    <div class="wrap-show-advance-info-box style-1">
+        <div class="wrap-top-banner">
+            <a href="@subban?.RedirectedUrl" class="link-banner banner-effect-2">
+                <figure><img src="/subbanner/@subban?.BannerUrl" width="1170" height="240" alt=""></figure>
+            </a>
+        </div>
+    </div>
+
+    count++;
+}
+

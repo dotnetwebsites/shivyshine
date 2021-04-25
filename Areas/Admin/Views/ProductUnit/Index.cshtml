@@ -1,0 +1,118 @@
+@model IEnumerable<ProductUnit>
+
+@{   
+    ViewData["Title"] = "Product Unit";
+    ViewData["PageTitle"] = "Product Unit";
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="panel panel-bd ">
+            <div class="row">
+                <div class="col-md-6">                    
+                    <h3 class="text-uppercase" style="padding: 0px 20px;">
+                        <i class="fa fa-cog"></i>
+                        Product Unit
+                    </h3>
+                </div>
+                <div class="col-md-5">
+                    <div class="col-md-9">
+                        <a asp-action="ExportExcel" asp-area="Admin" class="btn btn-success" title="Export Excel" style="margin: 15px 85%;">
+                            <i class="fa fa-file-excel-o"></i>                        
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a asp-action="Create" asp-area="Admin" class="btn btn-primary" title="Create New" style="margin: 15px;">
+                            Add New
+                        </a>
+                    </div>                    
+                </div>
+                @* <div class="col-md-5">                    
+                    @Html.ActionLink("Add New", "Create", null, new { Area = "Admin" }, new{ @class = "btn btn-primary", @Title="Create New", @style="margin: 15px 85%;" })
+                </div> *@
+            </div>
+            <hr/>
+            <div class="panel-body">
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })      
+                <div class="table-scrolled">                                        
+                    <table class="example display table table-hover dataTable" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>Sr No</th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ProductName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.QuantityType)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Quantity)
+                                </th>                            
+                                <th>
+                                    @Html.DisplayNameFor(model => model.IsActive)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ProductUnitImageUrl)
+                                </th>
+                                
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Select((x, i) => new
+                                                                {
+                                                                    Data = x,
+                                                                    Index = i +
+                                                                    1
+                                                                }))
+                            {
+                                <tr>
+                                    <td>@item.Index</td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Data.ProductName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Data.QuantityType)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Data.Quantity)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Data.IsActive)
+                                    </td>
+                                 
+                                    <th>
+                                        <img src="@item.Data.ProductUnitImageUrl" height="50" width="50" alt="NoImage"/>
+                                    <td>
+                                    
+                                        <a asp-area="Admin" asp-action="Edit" asp-route-id="@item.Data.Id" class="btn btn-add btn-sm" title="Edit Record">
+                                           <i class="fa fa-pencil"></i>
+                                        </a> |
+                                        <a asp-area="Admin" asp-action="Details" asp-route-id="@item.Data.Id" class="btn btn-primary btn-sm" title="View Details">
+                                            <i class="fa fa-info-circle"></i>
+                                        </a> |
+                                        <a asp-area="Admin" asp-action="Delete" asp-route-id="@item.Data.Id" class="btn btn-danger btn-sm" title="Delete Record"
+                                            onclick="return DeleteConfirm();">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                        
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>        
+        $(document).ready(function () {
+            $(".Master").addClass("active");
+        });
+    </script>
+}

@@ -1,0 +1,88 @@
+@using Shivyshine.Areas.Identity.Data;
+
+@model ApplicationUser
+@{
+    ViewData["Title"] = "User Details";
+    ViewData["PageTitle"] = "User Details";
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="panel panel-bd ">
+            <div class="panel-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                    <div class="form-group col-md-4">
+                        <label>Name</label>
+                        <label class="form-control">@Model.FullName</label>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label>Username</label>
+                        <label class="form-control">@Model.UserName</label>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label>Email</label>
+                        <label class="form-control">
+                            @Model.Email
+                            @if(Model.EmailConfirmed){
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>                                           
+                            }else{
+                                <i class="fa fa-times text-danger" aria-hidden="true"></i>
+                            }
+                        </label>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label>Phone Number</label>
+                        <label class="form-control">
+                            @Model.PhoneNumber
+                            @if(Model.PhoneNumberConfirmed){
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>                                           
+                            }else{
+                                <i class="fa fa-times text-danger" aria-hidden="true"></i>
+                            }
+                        </label>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label>Date of Birth</label>
+                        <label class="form-control">
+                            @Model.DateOfBirth?.ToString("dd MMM yyyy")
+                        </label>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label>Date of Birth</label>
+                        @{
+                            if(Model.Gender == true)
+                            {
+                                <label class="form-control">Male</label>                                
+                            }
+                            else if(Model.Gender == false)
+                            {
+                                <label class="form-control">Female</label>                                
+                            }
+                            else {
+                                <label class="form-control">Other</label>                                
+                            }
+                        }                        
+                    </div>
+
+                  
+                    <div class="form-group col-md-12">
+                        <a asp-area="Admin" asp-action="Index" class="btn btn-info">Back</a>                        
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

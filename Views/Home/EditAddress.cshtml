@@ -1,0 +1,148 @@
+@model Address
+
+@{
+    ViewData["Title"] = "Edit Address";
+}
+
+<div class="wrap-breadcrumb">
+    <ul>
+        <li class="item-link"><a asp-action="Index" asp-controller="Home" asp-area="" class="link">home</a></li>
+        <li class="item-link"><span>Update</span></li>
+    </ul>
+</div>
+
+<div class="row">
+
+    <div class=" main-content-area">
+        <div class="wrap-login-item ">
+            <div class="col-lg-12 col-sm-12 col-md-12 col-xs-12">
+                <!-- login form -->
+                <div class="login-form form-item ">
+                    <form method="post">
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                        
+                        <div class="form-group col-md-4">
+                            @Html.LabelFor(model => model.FirstName)
+                            @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control", @placeholder="Brand Name" } })
+                            @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })                                    
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            @Html.LabelFor(model => model.Lastname)
+                            @Html.EditorFor(model => model.Lastname, new { htmlAttributes = new { @class = "form-control", @placeholder="Brand Name" } })
+                            @Html.ValidationMessageFor(model => model.Lastname, "", new { @class = "text-danger" })                                    
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            @Html.LabelFor(model => model.Email)
+                            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", @placeholder="Brand Name" } })
+                            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })                                    
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            @Html.LabelFor(model => model.PhoneNumber)
+                            @Html.EditorFor(model => model.PhoneNumber, new { htmlAttributes = new { @class = "form-control", @placeholder="Brand Name" } })
+                            @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })                                    
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            @Html.LabelFor(model => model.FullAddress)
+                            @Html.EditorFor(model => model.FullAddress, new { htmlAttributes = new { @class = "form-control", @placeholder="Brand Name" } })
+                            @Html.ValidationMessageFor(model => model.FullAddress, "", new { @class = "text-danger" })                                    
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            @Html.LabelFor(model => model.Landmark)
+                            @Html.EditorFor(model => model.Landmark, new { htmlAttributes = new { @class = "form-control", @placeholder="Brand Name" } })
+                            @Html.ValidationMessageFor(model => model.Landmark, "", new { @class = "text-danger" })                                    
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            @Html.LabelFor(model => model.Pincode)
+                            @Html.EditorFor(model => model.Pincode, new { htmlAttributes = new { @class = "form-control", @placeholder="Pincode" } })
+                            <label style="margin: 10px 10px;" class="text-success getAdd"></label>
+                            @Html.ValidationMessageFor(model => model.Pincode, "", new { @class = "text-danger" })
+                        </div>
+
+                        @* <div class="form-group col-md-4">
+                            @Html.LabelFor(model => model.CountryId)
+                            @Html.DropDownList("CountryId", null, null, htmlAttributes: new { @class = "form-control select2" })
+                            @Html.ValidationMessageFor(model => model.CountryId, "", new { @class = "text-danger" })                                    
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            @Html.LabelFor(model => model.StateId)
+                            <select asp-for="StateId" asp-items="@ViewBag.StateId" class="form-control">                                
+                            </select>
+                            @Html.ValidationMessageFor(model => model.StateId, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            @Html.LabelFor(model => model.CityId)
+                            <select asp-for="CityId" asp-items="@ViewBag.CityId" class="form-control">                                
+                            </select>
+                            @Html.ValidationMessageFor(model => model.CityId, "", new { @class = "text-danger" })
+                        </div> *@
+                        
+                        <div class="form-group wrap-input col-md-8">
+                            <input type="submit" class="btn btn-submit" value="Update" name="submit">
+                            <a class="btn btn-primary" asp-area="" asp-controller="Home" asp-action="MyOrders">Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!--end main products area-->
+
+</div>
+<!--end row-->
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $('#Pincode').change(function(){
+            var pincode = $('#Pincode').val();
+            if(pincode==null || pincode=='')
+            {
+                alert('Please enter pincode and try again');
+                return false;
+            }
+
+            if(!(parseInt(pincode)>100000 && parseInt(pincode)<999999))
+            {
+                alert('Please enter valid 6 digit pincode');
+                return false;
+            }
+
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("IsPincode","Product")',
+                dataType:'json',
+                data:{id: pincode},
+                success: function(data){
+                    if(data!=null){
+                        if(data['pincodes'].includes("Sorry"))
+                        {
+                            $('.getAdd').text(data['pincodes']);                        
+                        }else{
+                            $('.getAdd').text(data['pincodes']);
+                            $('.getAdd').append('<img src="/assets/images/verified.png" width="20" height="20" alt="Verified" />');
+                        }
+                        
+                    }else{                        
+                        return false;
+                    }                        
+                },
+                error: function(ex){
+                    console.log(ex);
+                }
+            });           
+        });
+
+
+    </script>
+}

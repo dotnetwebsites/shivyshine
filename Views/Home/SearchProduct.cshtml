@@ -1,0 +1,16 @@
+
+@{
+    ViewBag.Title = "Search not found";
+}
+
+<h1 id="txtSearch"></h1>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function(){
+            var searchVal = getUrlParameter("search");
+            $("#txtSearch").text("Search not found: " + searchVal);
+        });
+    </script>
+}

@@ -1,0 +1,255 @@
+@using Newtonsoft.Json
+@using Shivyshine.Areas.Identity.Data
+@using Shivyshine.Data
+
+@inject ApplicationDbContext _repository
+
+@{
+    List<CartViewModel> existingcarts = new List<CartViewModel>();
+    ViewData["Title"] = "Cart";    
+    if (Context.Request.Cookies["cart"] != null){
+        existingcarts = JsonConvert.DeserializeObject<List<CartViewModel>>(Context.Request.Cookies["cart"]?.ToString());
+    }        
+}
+
+
+
+
+        <div class="wrap-breadcrumb">
+            <ul>
+                <li class="item-link"><a asp-area="" asp-action="Index" asp-controller="Home" class="link">Home</a></li>
+                <li class="item-link"><span>Your Cart</span></li>
+            </ul>
+        </div>
+        <div class=" main-content-area">
+
+            <div class="wrap-iten-in-cart ">
+                <h3 class="box-title">Products Name</h3>
+                <ul class="products-cart">
+                    @{
+                        var count=0;double totalamount=0;double gstamount=0;
+                    }
+                    @foreach (var item in existingcarts)
+                    {                        
+                        var prod = _repository.Products.FirstOrDefault(p => p.Id == item.ProductId);
+                        var unit = _repository.ProductUnits.FirstOrDefault(p => p.Id == item.ProductUnitId);
+                        var shade = _repository.Shades.FirstOrDefault(p => p.Id == item.ShadeId);
+                        var brand = await _repository.Brands.FindAsync(prod.BrandId);
+
+                        <li class="pr-cart-item">
+                            <div class="product-image">
+                                <figure>
+                                    <a asp-action="Details" asp-controller="Product" target="_blank"
+                                    asp-route-id="@item.ProductId" asp-route-unitid="@unit.Id" asp-route-shadeid="@shade?.Id">
+                                    @if(shade!=null)
+                                    {
+                                        var shdimg = _repository.ProductImages.FirstOrDefault(p=>p.ProductId == item.ProductId && p.ProductUnitId == item.ProductUnitId && p.ShadeId == item.ShadeId)?.ProductImageUrl;
+                                        <img src="@shdimg" alt="ProductImage">
+                                    }else{
+                                        var img = _repository.ProductImages.FirstOrDefault(p=>p.ProductId == item.ProductId && p.ProductUnitId == item.ProductUnitId).ProductImageUrl;
+                                        <img src="@img" alt="ProductImage">
+                                    }                                    
+                                    </a>                                    
+                                </figure>
+                            </div>
+                            <div class="product-name">
+                                <a class="link-to-product" asp-area="" asp-action="Details" asp-controller="Product"
+                                    asp-route-itemid="@prod.Id" asp-route-unitid="@unit.Id" asp-route-shadeid="@shade?.Id" >
+                                    @brand.BrandName @prod.ProductName @unit.GetPacking @Html.Raw(shade!=null?"-":"") @shade?.ShadeName                                    
+                                </a>
+                            </div>
+                            <div>
+                                @if(shade != null && shade.IsVisiblePrice)
+                                {
+                                    <p>MRP: @shade.PriceDel.ToString("#.00")</p>                                                                
+                                    @if(shade.DiscountInRs!=null ||
+                                    shade.DiscountInPer!=null){
+                                        @if (shade.DiscountInRs != null)
+                                        {
+                                            <b><i class="fa fa-inr"></i> @shade.DiscountInRs off</b>
+                                        }
+                                        else
+                                        {
+                                            <b>@shade.DiscountInPer% off</b>
+                                        }
+                                    }
+                                }else{
+                                <p>MRP: @unit.PriceDel.ToString("#.00")</p>                                                                
+                                @if(unit.DiscountInRs!=null ||
+                                 unit.DiscountInPer!=null){
+                                    @if (unit.DiscountInRs != null)
+                                    {
+                                        <b><i class="fa fa-inr"></i> @unit.DiscountInRs off</b>
+                                    }
+                                    else
+                                    {
+                                        <b>@unit.DiscountInPer% off</b>
+                                    }
+                                }
+                                }
+                            </div>
+                            <div class="price-field produtc-price">
+                                @if(shade != null && shade.IsVisiblePrice)
+                                {
+                                    <p class="price"><i class="fa fa-inr"></i> @shade.Price.ToString("#.00")</p>
+                                }else{
+                                    <p class="price"><i class="fa fa-inr"></i> @unit.Price.ToString("#.00")</p>
+                                }                                
+                            </div>
+                            <div class="quantity">
+                                <div class="quantity-input">  
+                                    @if(shade != null && shade.IsVisiblePrice)
+                                    {
+                                    }                                  
+                                    <input type="number" id="txtQuantity_@item.ProductId@item.ProductUnitId@item.ShadeId" onchange="btnUpdCart(this.id,0,@count);" 
+                                    name="product-quatity" value="@item.Quantity" data-max="120" pattern="[0-9]*">
+                                    <a class="btn btn-reduce" onclick="return btnUpdCart('txtQuantity_@item.ProductId@item.ProductUnitId@item.ShadeId',-1,@count);" href="javascript:;"></a>
+                                    <a class="btn btn-increase" onclick="return btnUpdCart('txtQuantity_@item.ProductId@item.ProductUnitId@item.ShadeId',1,@count);" href="javascript:;"></a>
+                                </div>
+                            </div>
+                            <div class="price-field sub-total">
+                                @if(shade != null && shade.IsVisiblePrice)
+                                {
+                                    gstamount = gstamount + shade.GSTCalc(shade.AmountCalc(shade.Price, item.Quantity), shade.GSTIN);
+                                    totalamount = totalamount + shade.AmountCalc(shade.Price, item.Quantity);
+                                    <p class="price"><i class="fa fa-inr"></i> <span id="txtAmount_@count">@shade.AmountCalc(shade.Price, item.Quantity).ToString("#.00")</span></p>
+                                }else{
+                                    gstamount = gstamount + unit.GSTCalc(unit.AmountCalc(unit.Price, item.Quantity), unit.GSTIN);
+                                    totalamount = totalamount + unit.AmountCalc(unit.Price, item.Quantity);
+                                    <p class="price"><i class="fa fa-inr"></i> <span id="txtAmount_@count">@unit.AmountCalc(unit.Price, item.Quantity).ToString("#.00")</span></p>
+                                }                                    
+                            </div>
+                            <div class="delete">
+                                <a asp-route-pid="@item.ProductId" asp-route-unitid="@item.ProductUnitId" asp-route-shadeid="@item.ShadeId"
+                                asp-action="DeleteToCart" asp-controller="Home" class="btn" title="Delete records from cart">
+                                    <span>Delete from your cart</span>
+                                    <i class="fa fa-times-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </li>   
+                        count++;  
+                    }
+                   
+                </ul>
+            </div>
+
+            <div class="summary ">
+                <div class="order-summary">
+                    <h4 class="title-box">Order Summary</h4>
+                    <p class="summary-info">
+                        <span class="title">Sub Total</span>
+                        <b class="index"><i class="fa fa-inr"></i> 
+                        @{
+                            var subtot = totalamount-gstamount;
+                        }
+    
+                        @subtot.ToString("#,##0.00") </b>
+                    </p>
+                    <p class="summary-info">
+                        @{
+                            var isLocal = "GTS";
+                            var pin = Context.Request.Cookies["zipcode"]?.ToString();
+                            var getpin = _repository.Pincodes.FirstOrDefault(p=>p.Pincodes == pin);
+                            var getcity = await _repository.Cities.FindAsync(getpin?.CityId);
+                            
+                            if(getcity?.StateId == 35)
+                                isLocal = "CGST + SGST";
+                            else
+                                isLocal = "IGST";
+                            
+                        }
+                        <span class="title">
+                            @isLocal
+                        </span>
+                        <b class="index"><i class="fa fa-inr"></i> @gstamount.ToString("#,##0.00") </b>
+                    </p>                    
+                    <p class="summary-info">
+                        <span class="title">Shipping Charge</span>
+                        @{
+                            var pincode = Context.Request.Cookies["zipcode"]?.ToString();
+                            double charges=0;
+                            if(_repository.ShippingMasters.Any(p=>p.Pincode == Convert.ToUInt32(pincode) && p.MinAmount > totalamount))
+                            {
+                                charges = _repository.ShippingMasters.FirstOrDefault(p=>p.Pincode == Convert.ToUInt32(pincode) && p.MinAmount > totalamount).ShippingCharge;
+                                <b class="index"><i class="fa fa-inr"></i> @charges.ToString("#,##0.00")</b>
+                            } else if(_repository.ShippingMasters.Any(p=>p.Pincode == Convert.ToUInt32(pincode) && p.MinAmount < totalamount)){
+                                <b class="index"> Free Shipping </b>
+                            }
+
+                        }                         
+                    </p>
+
+                    <p class="summary-info total-info "><span class="title">Net Payable</span>
+                    <b class="index"><i class="fa fa-inr"></i> 
+                    @{
+                        var netpay = totalamount + charges;                        
+                    }
+                    @netpay.ToString("#,##0.00") </b>
+                    </p>
+                </div>
+                <div class="checkout-info">
+                    <a class="btn btn-checkout" asp-action="Checkout">Proceed To Checkout</a>
+                    <a class="link-to-shop" asp-action="Index" >Continue Shopping<i class="fa fa-arrow-circle-right"
+                            aria-hidden="true"></i></a>
+                </div>
+
+            </div>
+        </div>
+    
+@section Scripts
+{
+    <script>
+        $(document).ready(function(){
+            if(getCookie('pincode')!='')
+            {
+                var pincode = JSON.parse(getCookie('pincode'));
+
+                console.log(pincode);
+            }
+        });
+
+        function btnUpdCart(id,val,r){
+            if($('#'+id).val()=='')
+                $('#'+id).val('1')
+
+            var qty = $('#'+id).val();
+            
+            var cookie = JSON.parse(getCookie('cart'));
+            
+            var prodId =  cookie[r]["ProductId"]
+            var unitiId =  cookie[r]["ProductUnitId"]
+            var shadeiId =  cookie[r]["ShadeId"]
+            var currQty = parseInt(qty) + parseInt(val); //$("#txtQuantity").val();
+            
+            if(currQty<=0 || currQty==null){
+                return false;
+            }
+            
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("UpdateCart","Home")',
+                dataType:'json',
+                data:{prodid: prodId, unitid: unitiId, shadeid: shadeiId, currqty: currQty},
+                success: function(data){
+                    //console.log(data);                    
+                    //$('#txtAmount_' + r).text(data);
+                    window.location = "/Home/Cart";
+                },
+                error: function(ex){
+                    console.log(ex);
+                }
+            });
+            return true;
+        }        
+
+        function listCookies() {
+            var theCookies = document.cookie.split(';');
+            var aString = '';
+            for (var i = 1 ; i <= theCookies.length; i++) {
+                aString += i + ' ' + theCookies[i-1] + "\n";
+            }
+            return aString;
+        }
+
+    </script>
+}

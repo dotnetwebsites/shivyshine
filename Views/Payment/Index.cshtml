@@ -1,0 +1,127 @@
+@model PaymentInitiateModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="col-md-6 col-md-offset-3" style="border: 1px solid black;margin-top: 150px;">
+            <h2>Payment Information</h2>
+            <p></p>
+            @using (Html.BeginForm("CreateOrder", "Payment", FormMethod.Post))
+            {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.Id)
+            @Html.HiddenFor(model => model.Name)
+            @Html.HiddenFor(model => model.Email)
+            @Html.HiddenFor(model => model.ContactNumber)
+            @Html.HiddenFor(model => model.Address)
+            @Html.HiddenFor(model => model.Amount)
+            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            <table class="table  table-responsive">
+                <tbody>
+                    <tr>
+                        <td>
+                            <b>@Html.LabelFor(model => model.Name)</b>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.Name)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>@Html.LabelFor(model => model.Email)</b>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.Email)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>@Html.LabelFor(model => model.ContactNumber)</b>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.ContactNumber)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>@Html.LabelFor(model => model.Address)</b>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.Address)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>@Html.LabelFor(model => model.Amount)</b>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.Amount)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input type="submit" class="btn btn-primary" value="Pay Now"/></td>
+                    </tr>
+                </tbody>
+            </table>
+            }
+
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+
+@* <div class="container login-container">
+    <div class="login-card">
+        <div class="login-card-body">
+            @using (Html.BeginForm("CreateOrder", "Payment", FormMethod.Post))
+            {
+                
+
+                <div class="row">
+                    
+                </div>
+
+                <div class="row">
+                    @Html.LabelFor(model => model.Email)
+                    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control"} })
+                </div>
+
+                <div class="row">
+                    @Html.LabelFor(model => model.ContactNumber)
+                    @Html.EditorFor(model => model.ContactNumber, new { htmlAttributes = new { @class = "form-control"} })
+                </div>
+
+                <div class="row">
+                    @Html.LabelFor(model => model.Address)
+                    @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control"} })
+                </div>
+
+                <div class="row">
+                    @Html.LabelFor(model => model.Amount)
+                    @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control"} })
+                </div>
+                <button type="submit" class="btn btn-primary">Pay Now</button>
+            }
+        </div>
+    </div>
+
+</div> *@

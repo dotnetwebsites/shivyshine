@@ -1,0 +1,622 @@
+@using Newtonsoft.Json
+@using Shivyshine.Data
+@using Microsoft.AspNetCore.Identity
+@using Shivyshine.Areas.Identity.Data
+
+@inject ApplicationDbContext _repository
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+
+@{
+    ViewData["Title"] = "Checkout";
+    
+    List<CartViewModel> existingcarts = new List<CartViewModel>();
+    if (Context.Request.Cookies["cart"] != null){
+        existingcarts = JsonConvert.DeserializeObject<List<CartViewModel>>(Context.Request.Cookies["cart"]?.ToString());
+    }  
+
+    var user = await UserManager.GetUserAsync(User);
+    var addressess = _repository.Addresses.Where(p=>p.Username == user.UserName);
+        
+}
+
+<div class="wrap-breadcrumb">
+    <ul>
+        <li class="item-link"><a asp-area="" asp-action="Index" asp-controller="Home" class="link">Home</a></li>
+        <li class="item-link"><span>Billing Details</span></li>
+    </ul>
+</div>
+<div class=" main-content-area">
+    <div class="col-md-8">
+        <div class="accordion-container">
+            <h2>Login</h2>
+            <div class="set">
+                <a href="javascript:;">
+                    Login
+                    <i class="fa fa-plus"></i>
+                </a>
+                @if(user!=null){
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5><b> Name: @user.FirstName </b></h5>
+                                <h5><b> Phone: @user.PhoneNumber </b></h5>
+                                <h5><a asp-action="LogOut" asp-route-returnUrl="/Home/Checkout"
+                                class="link-to-shop ">Logout And Sign In To Another Account</a></h5>
+                                @* <a class="btn btn-primary" href="">Continue To Checkout</a> *@
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Advantage Of Our Secure Login</h5>
+                                <ul>
+                                    <li>Easily Track Orders, Hassle free Returns</li>
+                                    <li>Get Relevant Alerts and Recommendation</li>
+                                    <li>Wishlist, Reviews, Ratings and more.</li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        @* <b>Please Note: that upon clicking "Logout" you will lose all items in cart and will be
+                            redirected to Shivyshine home page.</b> *@
+                    </div>    
+                }else{
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="wrap-address-billing">
+                                    <form asp-action="Login" method="GET" name="frm-billing">
+                                            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                                                <div class="form-group wrap-title col-md-8">                       
+                                                    <h3 class="form-title">Log in to your account</h3>
+                                                </div>                        
+                                                <div class="form-group wrap-input col-md-8">
+                                                    <label> Username </label>
+                                                    <input id="username" name="username" class="form-control" placeholder="Username/Mobile Number/Email Address"/>
+
+                                                </div>
+                                                <div class="form-group wrap-input col-md-8">
+                                                    <label> Password </label>
+                                                    <input id="password" name="password" type="password" class="form-control" placeholder="************"/>
+
+                                                </div>
+                                                <div class="form-group wrap-input col-md-8">
+                                                    <a class="link-function left-position" id="forgot-password" 
+                                                        asp-area="Identity" asp-controller="Account" asp-action="ForgotPassword">Forgot your password?</a>
+                                                </div>
+                                                <div class="form-group wrap-input col-md-8">
+                                                    <input type="submit" class="btn btn-primary" value="Login" name="submit">
+                                                    <a class="btn btn-primary" asp-area="Identity" asp-controller="Account" asp-action="Register">Register</a>
+                                                </div>
+                                        </form>
+                                </div>
+                            </div>
+                        </div>                        
+                    </div>
+                }
+                
+            </div>
+            
+            @if(SignInManager.IsSignedIn(User)){
+                <div class="set">
+                    <a href="javascript:;">
+                        Delivery Address
+                        <i class="fa fa-plus"></i>
+                    </a>
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-md-12">                                
+                                @foreach (var add in addressess)
+                                {
+                                    var statename = _repository.States.Find(add.StateId).StateName;
+                                    var cityname = _repository.Cities.Find(add.CityId).CityName;
+                                    string IsRadioChecked = "";
+                                    if(Context.Request.Query["add"].ToString()!=""){
+                                        IsRadioChecked = Context.Request.Query["add"].ToString() == add.Id.ToString() ? "checked" : "";
+                                    }
+                                    
+
+                                    <div class="radio">
+                                        <label for="DlvAddRadio_@add.Id">
+                                            <input type="radio" name="DlvAddRadio" @IsRadioChecked data-addid="@add.Id" id="DlvAddRadio_@add.Id" value="@add.Pincode" name="optradio" >
+                                            @add.FullName (@add.PhoneNumber)
+                                            <p class="text-info">@add.FullAddress, @cityname (@statename), @add.Pincode</p>
+                                        </label>                                        
+                                    </div>
+                                }
+
+                                <a href="javascript:;" onclick="EditAddress()" class="btn btn-primary" >Edit Address</a>            
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+                <div class="set">
+                    <a href="javascript:;">
+                        Add New Address
+                        <i class="fa fa-plus"></i>
+                    </a>
+                    <div class="content">                        
+                        <div class="row">                            
+                            <div class="col-md-12">
+                                <div class="radio">
+                                    <div class="wrap-address-billing">
+                                        
+                                        <form asp-action="AddNewAddress" method="POST" name="frm-billing">
+
+                                            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                                        
+                                            <p class="row-in-form">
+                                                <label for="fname">First name</label>
+                                                <input id="addFirstName" type="text" name="FirstName"
+                                                    placeholder="Your name">
+                                            </p>
+                                            <p class="row-in-form">
+                                                <label for="lname">Last name</label>
+                                                <input id="addLastName" type="text" name="LastName"
+                                                    placeholder="Your last name">
+                                            </p>
+                                            <p class="row-in-form">
+                                                <label for="email">Email Addreess:</label>
+                                                <input id="addEmail" type="email" name="Email"
+                                                    placeholder="Type your email">
+                                            </p>
+                                            <p class="row-in-form">
+                                                <label for="phone">Phone number</label>
+                                                <input id="addPhoneNumber" type="number" name="PhoneNumber"
+                                                    placeholder="10 digits format">
+                                            </p>
+                                            <p class="row-in-form">
+                                                <label for="add">Address:</label>
+                                                <input id="addFullAddress" type="text" name="FullAddress" 
+                                                    placeholder="Street at apartment number">
+                                            </p>
+                                            <p class="row-in-form">
+                                                <label for="landmark">Landmark</label>
+                                                <input id="addLandmark" type="text" name="Landmark"
+                                                    placeholder="Landmark">
+                                            </p>
+                                            <p class="row-in-form">
+                                                <label for="zip-code">Postcode / ZIP:</label>
+                                                <input id="Pincode" type="number" name="Pincode"
+                                                    placeholder="Your postal code">  
+                                                <label style="margin: 10px 10px;" class="text-success getAdd"></label>                                              
+                                            </p>
+                                            @* <p class="row-in-form">
+                                                <label for="country">State</label>
+                                                <select class="form-control" id="add" name="StateId">
+                                                    <option value="1">MP</option>
+                                                </select>
+                                            </p> *@
+                                            @* <p class="row-in-form">
+                                                <label for="country">Country</label>
+                                                @Html.DropDownList("CountryId", null, null, htmlAttributes: new { @class = "form-control select2" })
+                                                <select class="form-control" id="addCountryId" name="CountryId">                                                    
+                                                    <option value="1">India</option>
+                                                </select>
+                                            </p> *@
+                                            @* 
+                                            <p class="row-in-form">
+                                                <label for="city">Town / City<span>*</span></label>
+                                                <select class="form-control" id="addCityId" name="CityId">
+                                                    <option value="1">Bhopal</option>
+                                                </select>
+                                            </p> *@
+
+                                            <p>
+                                                @if(SignInManager.IsSignedIn(User)){
+                                                    <input type="submit" class="btn btn-primary" value="Save" name="submit">
+                                                }else{
+                                                    <input onclick="isSaveLogIn()" type="button" class="btn btn-primary" value="Save">
+                                                }
+                                            </p>
+
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @* <div class="set">
+                    <a href="javascript:;">
+                        Payment Options
+                        <i class="fa fa-plus"></i>
+                    </a>
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-md-12">
+                                @{
+                                    string IsPayBank = "",IsPayCash = "";
+                                    if(Context.Request.Query["pmod"].ToString()!=""){
+                                        IsPayBank = Context.Request.Query["pmod"].ToString() == "1" ? "checked" : "";
+                                        IsPayCash = Context.Request.Query["pmod"].ToString() == "2" ? "checked" : "";
+                                    }
+                                }
+                                <div class="choose-payment-methods">
+                                    <label class="payment-method">
+                                        <input name="payment-method" @IsPayBank data-pmid="1" id="payment-method-bank"
+                                            type="radio" value="1">
+                                        <span>ONLINE PAYMENTS</span>
+                                        <span class="payment-desc">Pay via bank</span>                                        
+                                    </label>
+                                    <label class="payment-method">
+                                        <input name="payment-method" disabled @IsPayCash data-pmid="2" id="payment-method-visa"
+                                            type="radio" value="2">
+                                        <span>CASH ON DELIVERY</span>
+                                        <span class="payment-desc">Cash on delivery</span>
+                                    </label>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div> *@
+            }
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="summary-item shipping-method">
+            <h4 class="title-box f-title">YOUR ORDER</h4>
+            <table class="table table-condensed">
+                <tbody>
+                    @{
+                        var count=0;double totalamount=0;double gstamount=0;
+                    }
+                    @foreach (var item in existingcarts)
+                    {
+                        var prod = await _repository.Products.FindAsync(item.ProductId);
+                        var unit = await _repository.ProductUnits.FindAsync(item.ProductUnitId);
+                        var shade = await _repository.Shades.FindAsync(item.ShadeId);
+
+                        @if(shade != null && shade.IsVisiblePrice)
+                        {
+                            gstamount = gstamount + shade.GSTCalc(shade.AmountCalc(shade.Price, item.Quantity), shade.GSTIN);
+                            totalamount = totalamount + shade.AmountCalc(shade.Price, item.Quantity);
+                        }else{
+                            gstamount = gstamount + unit.GSTCalc(unit.AmountCalc(unit.Price, item.Quantity), unit.GSTIN);
+                            totalamount = totalamount + unit.AmountCalc(unit.Price, item.Quantity);
+                        }
+
+                        <tr class="cart_item">
+                            <td class="product-name">
+                                @prod.ProductName @unit.GetPacking <strong class="product-quantity"> × @item.Quantity</strong>
+                            </td>
+                            <td class="product-total" style="float: right;">
+                                @if(shade != null && shade.IsVisiblePrice)
+                                {                                    
+                                    <span class="amount">@shade.AmountCalc(shade.Price, item.Quantity).ToString("#.00") <i class="fa fa-inr"></i></span>
+                                }else{
+                                    <span class="amount">@unit.AmountCalc(unit.Price, item.Quantity).ToString("#.00") <i class="fa fa-inr"></i></span>
+                                }
+                            </td>
+                        </tr>
+
+                        count++;  
+                    }
+                    
+                </tbody>
+                <tfoot>
+                    <tr class="cart-subtotal">
+                        <th>Sub total</th>
+                        <td><span class="amount" style="float: right;">
+                            @{
+                                var subtot = totalamount-gstamount;
+                            } 
+                            @subtot.ToString("#,##0.00") <i class="fa fa-inr"></i>
+                        </span></td>
+                    </tr>
+
+                    <tr class="cart-subtotal">
+                        @{
+                            var isLocal = "GTS";
+                            var pin = Context.Request.Cookies["zipcode"]?.ToString();
+                            var getpin = _repository.Pincodes.FirstOrDefault(p=>p.Pincodes == pin);
+                            var getcity = await _repository.Cities.FindAsync(getpin?.CityId);
+                            
+                            if(getcity?.StateId == 35)
+                                isLocal = "CGST + SGST";
+                            else
+                                isLocal = "IGST";
+                            
+                        }
+                        <th>@isLocal</th>
+                        <td><span class="amount" style="float: right;">
+                            @gstamount.ToString("#,##0.00") <i class="fa fa-inr"></i>
+                        </span></td>                        
+                    </tr>
+
+                    <tr class="cart-subtotal">
+                        <th>Shipping Charges</th>
+                        <td>
+                            @{
+                                var pincode = Context.Request.Cookies["zipcode"]?.ToString();
+                                double charges=0;                                
+                                if(pincode!=null && _repository.ShippingMasters.Any(p=>p.Pincode == Convert.ToUInt32(pincode) && p.MinAmount > totalamount))
+                                {
+                                    var ship = _repository.ShippingMasters.FirstOrDefault(p=>p.Pincode == Convert.ToUInt32(pincode) && p.MinAmount > totalamount);
+                                    charges = ship.ShippingCharge;
+                                    <span class="amount shipcharges" style="float: right;"> @charges.ToString("#,##0.00") <i class="fa fa-inr"></i></span>
+                                } else if(_repository.ShippingMasters.Any(p=>p.Pincode == Convert.ToUInt32(pincode) && p.MinAmount < totalamount)){
+                                    
+                                    <span class="amount shipcharges" style="float: right;"> Free Shipping </span>
+                                } else {
+                                    <span class="amount shipcharges" style="float: right;"> Free Shipping </span>
+                                }
+
+                            }
+                            </td>
+                    </tr>
+                    <tr class="order-total">
+                        <th>Total Amount To Be Pay</th>
+                        <td><strong><span class="amount" style="float: right;"> 
+                            @{
+                                var netpay = totalamount + charges;
+                            }
+                            @netpay.ToString("#,##0.00") <i class="fa fa-inr"></i>
+                        </span></strong>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            @{
+                string IsPayBanks = "",IsPayCashs = "";
+                if(Context.Request.Query["pmod"].ToString()!=""){
+                    IsPayBanks = Context.Request.Query["pmod"].ToString() == "1" ? "checked" : "";
+                    IsPayCashs = Context.Request.Query["pmod"].ToString() == "2" ? "checked" : "";
+                }
+            }
+            <div class="choose-payment-methods">
+                <label class="payment-method">
+                    <input name="payment-method" @IsPayBanks data-pmid="1" id="payment-method-bank"
+                        type="radio" value="1">
+                    <span>ONLINE PAYMENTS</span>
+                    <span class="payment-desc">Pay via online bank transfer</span>                                        
+                </label>
+                <label class="payment-method">
+                    <input name="payment-method" disabled @IsPayCashs data-pmid="2" id="payment-method-visa"
+                        type="radio" value="2">
+                    <span style="color: lightgray;">CASH ON DELIVERY</span>
+                    <span class="payment-desc">Cash on delivery</span>
+                </label>
+            </div>
+
+            @if(SignInManager.IsSignedIn(User)){
+                <a href="javascript:;" onclick="PlaceOrder_Click()" class="btn btn-primary">Place order now</a>
+            }else{
+                <a href="javascript:;" onclick="isLogIn()" class="btn btn-primary">Place order now</a>
+                <br/>
+                <span id="LogMsg" class="text-danger" style="font-weight: bold;"></span>
+            }
+            
+
+        </div>
+    </div>
+</div>
+
+@section Scripts{   
+    <script>       
+        
+        $(document).ready(function () {
+            
+            $("input[name='DlvAddRadio']").click(function(){
+                if ($(this).is(':checked'))
+                {
+                    setCookie('zipcode',$(this).val(),2);
+                    var addId = $(this).attr("data-addid");
+                    window.location = '/Home/Checkout?add=' + addId;
+                }
+            });
+
+            $("input[name='payment-method']").click(function(){
+                if ($(this).is(':checked'))
+                {
+                    if(getUrlParameter('add') === undefined)
+                    {
+                    alert('Please choose address first and try again.');
+                    return false;
+                    }
+                    var address = getUrlParameter('add');
+                    setCookie('PayMod',$(this).val(),2);
+                    var pmId = $(this).attr("data-pmid");
+
+                    window.location = '/Home/Checkout?add=' + address + '&pmod=' + pmId;
+                }
+            });
+
+            $(".set > a").on("click", function () {
+                if ($(this).hasClass("active")) {
+                    $(this).removeClass("active");
+                    $(this)
+                        .siblings(".content")
+                        .slideUp(200);
+                    $(".set > a i")
+                        .removeClass("fa-minus")
+                        .addClass("fa-plus");
+                } else {
+                    $(".set > a i")
+                        .removeClass("fa-minus")
+                        .addClass("fa-plus");
+                    $(this)
+                        .find("i")
+                        .removeClass("fa-plus")
+                        .addClass("fa-minus");
+                    $(".set > a").removeClass("active");
+                    $(this).addClass("active");
+                    $(".content").slideUp(200);
+                    $(this)
+                        .siblings(".content")
+                        .slideDown(200);
+                }
+            });
+        });
+
+        function EditAddress()
+        {
+            if(getUrlParameter('add') === undefined)
+            {
+               alert('Please choose address for edit.');
+               return false;
+            }
+
+            var address = getUrlParameter('add');
+
+            window.open('/Home/EditAddress/' + address, '_blank');
+            //window.location = ;
+        }
+
+        function isLogIn()
+        {
+            $("#LogMsg").text('Please login to place your order.');
+        }
+
+        function isSaveLogIn()
+        {
+            alert('Please login first and try again.');
+            return false;
+        }
+
+        function PlaceOrder_Click()
+        {
+            if(getUrlParameter('add') === undefined)
+            {
+               alert('Please choose delivery address.');
+               return false;
+            }
+
+            if(getUrlParameter('pmod') === undefined)
+            {
+               alert('Please choose Payment mode.');
+               return false;
+            }
+
+            var address = getUrlParameter('add');
+            var pmod = getUrlParameter('pmod');
+            
+            if(!(pmod==1 || pmod==2))
+            {
+                alert('Please choose a valid payment mode.');
+                return false;
+            }
+            //var pincode = getCookie('zipcode');     
+                           
+           $.ajax({
+                type: 'GET',
+                url: '@Url.Action("PlaceOrder","Home")',
+                contentType: "application/json; charset=utf-8",
+                dataType:'json',
+                data: {id: address, pmode:pmod},
+                success: function(data){
+                    console.log(data);
+                    if(data == "csh")
+                    {
+                        window.location = "/cashondeliver/reciept";
+                    }
+                    else if(data == "bnk")
+                    {
+                        var id = getCookie('payid');
+                        //window.location = "/Payment/Razorpay/" + id;
+                        window.location = "/Payment/Index/" + id;
+                    }
+                    else{
+                        alert(data);
+                    }
+                    //$('#txtAmount_' + r).text(data);                 
+                },
+                error: function(ex){
+                    console.log(ex);
+                }
+            });
+        }
+        
+        $('#Pincode').change(function(){
+            var pincode = $('#Pincode').val();
+            if(pincode==null || pincode=='')
+            {
+                alert('Please enter pincode and try again');
+                return false;
+            }
+
+            if(!(parseInt(pincode)>100000 && parseInt(pincode)<999999))
+            {
+                alert('Please enter valid 6 digit pincode');
+                return false;
+            }
+
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("IsPincode","Product")',
+                dataType:'json',
+                data:{id: pincode},
+                success: function(data){
+                    if(data!=null){
+                        if(data['pincodes'].includes("Sorry"))
+                        {
+                            $('.getAdd').text(data['pincodes']);                        
+                        }else{
+                            $('.getAdd').text(data['pincodes']);
+                            $('.getAdd').append('<img src="/assets/images/verified.png" width="20" height="20" alt="Verified" />');
+                        }
+                        
+                    }else{                        
+                        return false;
+                    }                        
+                },
+                error: function(ex){
+                    console.log(ex);
+                }
+            });           
+        });   
+
+             
+    </script>
+
+     <style>
+            .accordion-container{
+            position: relative;
+            max-width: 100%;
+            height: auto;
+            margin: 10px auto;
+            }
+            .accordion-container > h2{
+            text-align: center;
+            color: #fff;
+            border-bottom: 1px solid #ddd;
+            }
+            .set{
+            position: relative;
+            width: 100%;
+            height: auto;
+            background-color: #f5f5f5;
+            }
+            .set > a{
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #555;
+            font-weight: 600;
+            border-bottom: 1px solid #ddd;
+            -webkit-transition:all 0.2s linear;
+            -moz-transition:all 0.2s linear;
+            transition:all 0.2s linear;
+            }
+            .set > a i{
+            float: right;
+            margin-top: 2px;
+            }
+            .set > a.active{
+            background-color:#56a298;
+            color: #fff;
+            }
+            .content{
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;            
+            padding: 12px;
+            }
+            .content p{
+            padding: 10px 15px;
+            margin: 0;
+            color: #333;
+            }
+    </style>
+}

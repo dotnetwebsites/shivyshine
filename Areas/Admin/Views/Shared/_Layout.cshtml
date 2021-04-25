@@ -1,0 +1,127 @@
+@using Shivyshine.Data
+
+@inject ApplicationDbContext _repository
+
+@{
+    @if(Context.Request.Cookies["USERNAME"]==null){
+        Context.Response.Redirect("/Admin/Account/Login");
+    }else{
+        var isUser = _repository.Employees.Any(p => p.Username == Context.Request.Cookies["USERNAME"].ToString());
+        //var isAdmin = ViewContext.RouteData.Values["Area"].ToString() == "Admin" ? true : false;
+        
+        if (!isUser) {
+            Context.Response.Redirect("/Admin/Account/Login");            
+        }
+    }
+      
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta itemprop="image" content="http://www.virtuosoft.eu/resources/bootstrap-colorpickersliders.png">
+    <title>@ViewData["Title"] - Shivyshine Admin Console</title>  
+
+    <link rel="shortcut icon" href="~/assets/dist/img/favicon.ico" type="image/x-icon">
+    <link href="~/assets/plugins/jquery-ui-1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    @* <link href="~/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> *@
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all">
+    <link href="~/css/prettify.min.css" rel="stylesheet" type="text/css" media="all">
+    <link rel="stylesheet" type="text/css" href="~/css/bootstrap.colorpickersliders.min.css">
+
+    <link href="~/assets/plugins/lobipanel/lobipanel.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/plugins/pace/flash.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/pe-icon-7-stroke/css/pe-icon-7-stroke.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/themify-icons/themify-icons.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/dist/css/stylecrm.css" rel="stylesheet" type="text/css" />
+    
+    <link href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />    
+    
+    <style>        
+        .logOut {
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            position: relative;
+            right: 126px;
+            bottom: 12px;
+        }
+    </style>
+</head>
+
+<body class="hold-transition sidebar-mini">
+    <div class="wrapper">
+        <header class="main-header">
+            <nav class="navbar navbar-static-top">
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <!-- Sidebar toggle button-->
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="pe-7s-angle-left-circle"></span>
+                    <span style="color: #020a0f;">@ViewData["PageTitle"]</span>
+                </a>
+
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown dropdown-user">
+                            <a href="#" class="dropdown-toggle">
+                                <img src="~/assets/images/logo.png" class="img-responsive" width="200" height="60"></a>
+
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <partial name="_DynamicMenusPartial.cshtml"/>
+        <div class="content-wrapper">
+            <section class="content">
+                @RenderBody()
+            </section>
+        </div>
+    </div>
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> *@
+    
+    
+    
+    <script src="~/assets/plugins/jQuery/jquery-1.12.4.min.js" type="text/javascript"></script>
+    <script src="~/assets/plugins/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
+    
+    <script src="~/js/bootstrap.colorpickersliders.min.js"></script>
+
+    @* <script src="~/assets/bootstrap/js/bootstrap.min.js" type="text/javascript"></script> *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/run_prettify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/0.11.1/tinycolor.min.js"></script>
+
+    <script src="~/assets/plugins/lobipanel/lobipanel.min.js" type="text/javascript"></script>
+    <script src="~/assets/plugins/pace/pace.min.js" type="text/javascript"></script>
+    <script src="~/assets/plugins/slimScroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="~/assets/plugins/fastclick/fastclick.min.js" type="text/javascript"></script>
+    <script src="~/assets/dist/js/custom.js" type="text/javascript"></script>
+    <script src="~/assets/dist/js/dashboard.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js" type="text/javascript"></script>
+
+    
+    <script>
+        $(document).ready(function() {
+            $('.example').DataTable();
+        } );
+
+        function DeleteConfirm()
+        {
+            if(confirm('Are you sure want to delete this record?'))
+            return true;
+            else
+            return false;
+        }        
+    </script>
+    @RenderSection("Scripts", required: false)    
+</body>
+
+</html>

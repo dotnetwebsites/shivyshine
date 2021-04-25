@@ -1,0 +1,174 @@
+@model IEnumerable<MyOrderView>
+
+@using Shivyshine.Areas.Identity.Data
+@using Shivyshine.Data
+
+@inject ApplicationDbContext _repository
+
+@{    
+    ViewData["Title"] = "My Orders";
+    var adds = _repository.Addresses.Where(p=>p.Username == User.Identity.Name).ToList();
+
+}
+
+<div class="wrap-breadcrumb">
+    <ul>
+        <li class="item-link"><a asp-area="" asp-action="Index" asp-controller="Home" class="link">Home</a></li>
+        <li class="item-link"><span>My Account</span></li>
+    </ul>
+</div>
+<p>From your account dashboard. you can easily check & view your recent orders, manage your shipping addresses
+    and Edit your Account details.</p>
+<div class="row">
+
+    <div class="col-lg-12 col-md-8 col-sm-8 col-xs-12   main-content-area">
+        <div class="wrap-product-detail">
+            <div class="advance-info">
+                <div class="tab-control normal">
+                    <a href="#description" class="tab-control-item active">My Orders</a>
+                    <a href="#add_infomation" class="tab-control-item">My Address</a>                    
+                </div>
+                <div class="tab-contents">
+                    <div class="tab-content-item active" id="description">
+                        <p>My Orders List</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-condensed table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Order Id</th>
+                                        <th>Order Date</th>
+                                        <th>Order Status</th>
+                                        <th>Total Cost And No.Of Item</th>
+                                        @* <th>Cancel Order</th> *@
+                                        <th>Status of Delivery</th>
+                                        <th>Payment Status</th>
+                                        <th>Order Details</th>                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.OrderByDescending(p => p.OrderDate))
+                                    {
+                                        var cancelledorder = @item.IsOrderCancel ? "disabled" : "";
+                                        var paymentData = await _repository.PaymentInitiateModels.FindAsync(item.PayId);
+
+                                        <tr>
+                                            <td>@item.OrderNo</td>
+                                            <td>@item.OrderDate.ToString("dd MMM yyyyy hh:mm tt")</td>
+                                            
+                                            @if(item.IsOrderCancel)
+                                            {
+                                                <td>CANCELLED</td>
+                                            }
+                                            else
+                                            {
+                                                var sts = _repository.OrderStatuses
+                                                .Where(p=>p.CustId == item.CustId)
+                                                .OrderByDescending(p=>p.CreatedDate)
+                                                .FirstOrDefault()?.OrdStatus;
+                                                
+                                                @* <th>@item.OrderStatus</th> *@
+                                                <td>@sts</td>
+                                            }
+                                            
+
+                                            <td><i class="fa fa-inr"></i> @item.NetPayable for @item.NoOfItems items</td>
+
+                                            @* @if(item.IsOrderCancel)
+                                            {
+                                                <td><label>Cancelled Order</label></td>
+                                            }
+                                            else
+                                            {
+                                                <td><a onclick="return ConfirmCancelOrder()" asp-controller="Home" cancelledorder asp-action="CancelOrder" asp-route-id="@item.CustId" class="btn btn-danger">Cancel this order</a></td>
+                                            } *@
+                                            
+                                            
+                                            <td>@item.DeliveryStatus</td>
+                                            
+                                            @if(!item.IsOrderCancel)
+                                            {
+                                                if(@item.PayMode == "BANK")
+                                                {
+                                                    if(@paymentData?.Status == "success")
+                                                    {
+                                                        <td align="center"><a class="btn btn-success btn-xs">PAID</a></td>
+                                                    }else{
+                                                        <td align="center"><a asp-area="" asp-controller="Payment" asp-action="Index" asp-route-id="@item.PayId"
+                                                            class="btn btn-primary btn-xs">
+                                                            <i class="fa fa-money"></i> Re Pay
+                                                        </a></td>
+                                                    }                                                    
+                                                    @* <th><span class="text-success">Online Paid</span></th> *@
+                                                }
+                                                else if(@item.PayMode == "COD")
+                                                {
+                                                    <td align="center"><a class="btn btn-warning btn-xs">CASH ON DELIVERY</a></td>                                                    
+                                                }
+                                                else
+                                                {
+                                                    <td></td>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <td align="center"><a class="btn btn-danger btn-xs">Cancelled</a></td>
+                                            }
+
+                                            <td><a asp-area="" asp-action="OrderDetails" asp-route-id="@item.CustId"
+                                            class="btn btn-success" title="Click here to view order details">
+                                            <i class="fa fa-info-circle"></i>
+                                            </a></td>
+                                            
+                                            
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-content-item " id="add_infomation">
+                        <p>Billing address</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-condensed table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone Number</th>
+                                        <th>Full Address</th>
+                                        <th>Landmark</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var a in adds)
+                                    {
+                                        var country = _repository.Countries.FirstOrDefault(p=>p.Id == a.CountryId);
+                                        var state = _repository.States.FirstOrDefault(p=>p.Id == a.StateId);
+                                        var city = _repository.Cities.FirstOrDefault(p=>p.Id == a.CityId);
+                                        
+                                        <tr>
+                                            <th>@a.FirstName @a.Lastname </th>
+                                            <th>@a.Email</th>
+                                            <th>@a.PhoneNumber</th>
+                                            <th>@a.FullAddress @city.CityName @state.StateName @country.CountryName @a.Pincode</th>
+                                            <th>@a.Landmark</th>
+                                            <td><a asp-area="" asp-controller="Home" asp-action="EditAddress" asp-route-id="@a.Id"
+                                                    class="btn btn-primary">Edit</a></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+}
