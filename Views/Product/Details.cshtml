@@ -2,8 +2,10 @@
 @using Shivyshine.Areas.Identity.Data
 @using Shivyshine.Data
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Identity
 
 @inject ApplicationDbContext _reposiroty
+@inject UserManager<ApplicationUser> _userManager
 
 @{
     ViewData["Title"] = "Product Detail";
@@ -14,419 +16,497 @@
 
     var similarProducts = await _reposiroty.Products.Where(p => p.SuperCategoryId ==
             Model.Product.SuperCategoryId).Take(6).ToListAsync();
+
+    List<ProductReview> reviews = new List<ProductReview>();
+
+    if (Context.Request.Query["shadeid"].ToString() != "")
+    {
+        int shdId = Convert.ToInt32(Context.Request.Query["shadeid"]);
+        reviews = _reposiroty.ProductReviews.Where(p => p.ProductId == Model.Product.Id && p.UnitId == Model.ProductUnit.Id && p.ShadeId == shdId && p.Rating >= 4).Take(10).ToList();
+    }
+    else
+    {
+        reviews = _reposiroty.ProductReviews.Where(p => p.ProductId == Model.Product.Id && p.UnitId == Model.ProductUnit.Id && p.Rating >= 4).Take(10).ToList();
+    }
+
 }
 
-        <div class="wrap-breadcrumb">
-            <ul>
-                <li class="item-link"><a asp-area="" asp-action="Index" asp-controller="Home" class="link">Home</a></li>
-                <li class="item-link"><span>Product detail</span></li>
-            </ul>
-        </div>
-        <div class="row">
+<div class="wrap-breadcrumb">
+    <ul>
+        <li class="item-link"><a asp-area="" asp-action="Index" asp-controller="Home" class="link">Home</a></li>
+        <li class="item-link"><span>Product detail</span></li>
+    </ul>
+</div>
+<div class="row">
 
-            <div class="col-lg-9 col-md-8 col-sm-8 col-xs-12   main-content-area">
-                <div class="wrap-product-detail">
-                    <div class="detail-media">
-                        <div class="product-gallery">
-                            <ul class="slides">
-                                @if(shades!=null){                                    
-                                    @foreach (var img in Model.ShadeImages)
-                                    {
-                                        if(Model.ProductUnit?.Id == img.ProductUnitId)
-                                        {
-                                            <li data-thumb="@img.ProductImageUrl">
-                                                <img src="@img.ProductImageUrl" alt="ProductImage" />
-                                            </li>
-                                        }                                                                                
-                                    }
-                                }else{
-                                    @foreach (var img in Model.UnitImages)
-                                    {    
-                                        if(Model.ProductUnit?.Id == img.ProductUnitId)
-                                        {
-                                            <li data-thumb="@img.ProductImageUrl">
-                                                <img src="@img.ProductImageUrl" alt="ProductImage" />
-                                            </li>       
-                                        }                                                                                                             
-                                    }
-                                }
-                                
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="detail-info">
-                        <div class="product-rating" style="display: none;">
-                            <i class="fa fa-star" aria-hidden="true"></i>
-                            <i class="fa fa-star" aria-hidden="true"></i>
-                            <i class="fa fa-star" aria-hidden="true"></i>
-                            <i class="fa fa-star" aria-hidden="true"></i>
-                            <i class="fa fa-star" aria-hidden="true"></i>
-                            <a href="#" class="count-review">(05 review)</a>
-                        </div>
-                        
-                        <h2 class="product-name">@Model.Product.ProductName @Html.Raw(Model.Shade !=null?"-":"") @Model.Shade?.ShadeName </h2>
-                        <div class="wrap-price">
-                            <ins>
-                                <p class="product-price">
-                                    @if(Model.Shade != null && Model.Shade.IsVisiblePrice)
-                                    {
-                                        @if(Model.Shade?.PriceDel!=null && 
-                                            Model.Shade.PriceDel>0){
-                                            <span>Rate :</span> 
-                                        }else{
-                                            <span>MRP :</span> 
-                                        }<i class="fa fa-inr"></i> @Model.Shade?.Price
-                                    }else{
-                                        @if(Model.ProductUnit?.PriceDel!=null && 
-                                            Model.ProductUnit.PriceDel>0){
-                                            <span>Rate :</span> 
-                                        }else{
-                                            <span>MRP :</span> 
-                                        }<i class="fa fa-inr"></i> @Model.ProductUnit?.Price
-                                    }
-                                </p>
-                            </ins>
-                            @if(Model.Shade != null && Model.Shade.IsVisiblePrice)
+    <div class="col-lg-9 col-md-8 col-sm-8 col-xs-12   main-content-area">
+        <div class="wrap-product-detail">
+            <div class="detail-media">
+                <div class="product-gallery">
+                    <ul class="slides">
+                        @if (shades != null)
+                        {
+                            @foreach (var img in Model.ShadeImages)
                             {
-                                @if(Model.Shade?.PriceDel!=null && 
-                                Model.Shade.PriceDel>0){
-                                <p class="product-price">
-                                    <del><i class="fa fa-inr"></i> @Model.Shade?.PriceDel</del>
-                                </p>
-                                }    
-                            }else {
-                                @if(Model.ProductUnit?.PriceDel!=null && 
-                                Model.ProductUnit.PriceDel>0){
-                                <p class="product-price">
-                                    <del><i class="fa fa-inr"></i> @Model.ProductUnit?.PriceDel</del>
-                                </p>
-                                }
-                            }                            
-                        </div>
-                        <div class="stock-info in-stock">
-                            <p class="availability"> (Inclusive of all taxes)
-                                @if(Model.Shade != null && Model.Shade.IsVisiblePrice)
+                                if (Model.ProductUnit?.Id == img.ProductUnitId)
                                 {
-                                    @if(Model.Shade?.DiscountInRs!=null ||
-                                        Model.Shade?.DiscountInPer!=null){
-                                            @if (Model.Shade.DiscountInRs != null)
-                                            {
-                                                <b><i class="fa fa-inr"></i> @Model.Shade.DiscountInRs off</b>
-                                            }
-                                            else
-                                            {
-                                                <b>@Model.Shade.DiscountInPer% off</b>
-                                            }
-                                        }
-                                }else{
-                                    @if(Model.ProductUnit?.DiscountInRs!=null ||
-                                    Model.ProductUnit?.DiscountInPer!=null){
-                                        @if (Model.ProductUnit.DiscountInRs != null)
+                                    <li data-thumb="@img.ProductImageUrl">
+                                        <img src="@img.ProductImageUrl" alt="ProductImage" />
+                                    </li>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            @foreach (var img in Model.UnitImages)
+                            {
+                                if (Model.ProductUnit?.Id == img.ProductUnitId)
+                                {
+                                    <li data-thumb="@img.ProductImageUrl">
+                                        <img src="@img.ProductImageUrl" alt="ProductImage" />
+                                    </li>
+
+                                }
+                            }
+                        }
+
+                    </ul>
+                </div>
+            </div>
+            <div class="detail-info">
+                <div class="product-rating" style="display: none;">
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                    <a href="#" class="count-review">(05 review)</a>
+                </div>
+
+                <h2 class="product-name">@Model.Product.ProductName @Html.Raw(Model.Shade != null ? "-" : "") @Model.Shade?.ShadeName </h2>
+                <div class="wrap-price">
+                    <ins>
+                        <p class="product-price">
+                            @if (Model.Shade != null && Model.Shade.IsVisiblePrice)
+                            {
+                                @if (Model.Shade?.PriceDel != null &&
+                                  Model.Shade.PriceDel > 0)
+                                {
+                                    <span>Rate :</span>
+                                }
+                                else
+                                {
+                                    <span>MRP :</span>
+                                }<i class="fa fa-inr"></i> @Model.Shade?.Price
+                            }
+                            else
+                            {
+                                @if (Model.ProductUnit?.PriceDel != null &&
+                                  Model.ProductUnit.PriceDel > 0)
+                                {
+                                    <span>Rate :</span>
+                                }
+                                else
+                                {
+                                    <span>MRP :</span>
+                                }<i class="fa fa-inr"></i> @Model.ProductUnit?.Price
+                            }
+                        </p>
+                    </ins>
+                    @if (Model.Shade != null && Model.Shade.IsVisiblePrice)
+                    {
+                        @if (Model.Shade?.PriceDel != null &&
+                          Model.Shade.PriceDel > 0)
+                        {
+                            <p class="product-price">
+                                <del><i class="fa fa-inr"></i> @Model.Shade?.PriceDel</del>
+                            </p>
+                        }
+                    }
+                    else
+                    {
+                        @if (Model.ProductUnit?.PriceDel != null &&
+                          Model.ProductUnit.PriceDel > 0)
+                        {
+                            <p class="product-price">
+                                <del><i class="fa fa-inr"></i> @Model.ProductUnit?.PriceDel</del>
+                            </p>
+                        }
+                    }
+                </div>
+                <div class="stock-info in-stock">
+                    <p class="availability">
+                        (Inclusive of all taxes)
+                        @if (Model.Shade != null && Model.Shade.IsVisiblePrice)
+                        {
+                            @if (Model.Shade?.DiscountInRs != null ||
+                                Model.Shade?.DiscountInPer != null)
+                            {
+                                @if (Model.Shade.DiscountInRs != null)
+                                {
+                                    <b><i class="fa fa-inr"></i> @Model.Shade.DiscountInRs off</b>
+                                }
+                                else
+                                {
+                                    <b>@Model.Shade.DiscountInPer% off</b>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            @if (Model.ProductUnit?.DiscountInRs != null ||
+             Model.ProductUnit?.DiscountInPer != null)
+                            {
+                                @if (Model.ProductUnit.DiscountInRs != null)
+                                {
+                                    <b><i class="fa fa-inr"></i> @Model.ProductUnit.DiscountInRs off</b>
+                                }
+                                else
+                                {
+                                    <b>@Model.ProductUnit.DiscountInPer% off</b>
+                                }
+                            }
+                        }
+                    </p>
+                </div>
+                <div class="stock-info in-stock">
+                    <p class="availability">Availability: <b>In Stock</b></p>
+                </div>
+                <div class="stock-info in-stock">
+                    <p class="availability">Brand: <b> @brand.BrandName</b></p>
+                </div>
+
+                @if (produnits != null && produnits.Count() > 1)
+                {
+                    <div class="wrap-footer-item">
+                        <h5 class="item-header"><b>Available Units</b></h5>
+                        <div class="item-content">
+                            <div class="wrap-list-item wrap-gallery">
+                                <ul>
+                                    @foreach (var unit in produnits)
+                                    {
+                                        if (unit.Id == Model.ProductUnit.Id)
                                         {
-                                            <b><i class="fa fa-inr"></i> @Model.ProductUnit.DiscountInRs off</b>
+                                            <li>
+                                                <a asp-action="Details" asp-controller="Product"
+                                                   asp-route-id="@Model.Product.Id" asp-route-unitid="@unit.Id"
+                                                   class="btn btn-success">@unit.GetPacking</a>
+                                            </li>
                                         }
                                         else
                                         {
-                                            <b>@Model.ProductUnit.DiscountInPer% off</b>
+                                            <li>
+                                                <a asp-action="Details" asp-controller="Product"
+                                                   asp-route-id="@Model.Product.Id" asp-route-unitid="@unit.Id"
+                                                   class="btn btn-danger">@unit.GetPacking</a>
+                                            </li>
                                         }
                                     }
-                                }
-                            </p>
+                                </ul>
+                            </div>
                         </div>
-                        <div class="stock-info in-stock">
-                            <p class="availability">Availability: <b>In Stock</b></p>
-                        </div>
-                        <div class="stock-info in-stock">
-                            <p class="availability">Brand: <b> @brand.BrandName</b></p>
-                        </div>
-    
-                        @if(produnits!= null && produnits.Count() > 1){
-                            <div class="wrap-footer-item">
-                                <h5 class="item-header"><b>Available Units</b></h5>
-                                <div class="item-content">
-                                    <div class="wrap-list-item wrap-gallery">
-                                        <ul>
-                                            @foreach (var unit in produnits)
-                                            {
-                                                if(unit.Id == Model.ProductUnit.Id)
-                                                {
-                                                    <li><a asp-action="Details" asp-controller="Product"
-                                                    asp-route-id="@Model.Product.Id" asp-route-unitid="@unit.Id" 
-                                                    class="btn btn-success">@unit.GetPacking</a></li>
-                                                }else{
-                                                    <li><a asp-action="Details" asp-controller="Product"
-                                                    asp-route-id="@Model.Product.Id" asp-route-unitid="@unit.Id" 
-                                                    class="btn btn-danger">@unit.GetPacking</a></li>
-                                                }                                            
-                                            }
-                                        </ul>
-                                    </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="stock-info in-stock">
+                        <p class="availability">Unit: <b> @Model.ProductUnit?.GetPacking</b></p>
+                    </div>
+                }
+
+                @if (shades != null && shades.Count() > 0)
+                {
+                    <div class="wrap-footer-item">
+                        <h5 class="item-header"><b>Shades</b></h5>
+                        <div class="item-content">
+
+                            <div class="col-md-12 col-xs-5" style="display: none;">
+                                <div class="select-style shade-select">
+                                    @Html.DropDownList("ShadeId", null, "Select Shade")
                                 </div>
                             </div>
-                        }else{
-                            <div class="stock-info in-stock">
-                                <p class="availability">Unit: <b> @Model.ProductUnit?.GetPacking</b></p>
-                            </div>                            
-                        }
 
-                        @if(shades != null && shades.Count() > 0){
-                            <div class="wrap-footer-item">
-                                <h5 class="item-header"><b>Shades</b></h5>
-                                <div class="item-content">
-                                    
-                                    <div class="col-md-12 col-xs-5" style="display: none;">
-                                        <div class="select-style shade-select">
-                                            @Html.DropDownList("ShadeId", null, "Select Shade")                                           
-                                        </div>
-                                    </div>
+                            <div class="form-group col-md-12 divShades">
+                                @foreach (var shade in shades)
+                                {
+                                    var colorpallete = shade.Id == Model.Shade.Id ? "color-pallets-tick" : "";
 
-                                    <div class="form-group col-md-12 divShades">                                    
-                                        @foreach (var shade in shades)
-                                        { 
-                                            var colorpallete = shade.Id == Model.Shade.Id ? "color-pallets-tick" : "";
-
-                                            <button data-id="@shade.Id" id="btnShade_@shade.Id" type="button" onclick="return fnGetShade(this.id)"
-                                            style="background-color: @shade.ShadeColor;border: 1px solid; margin: 5px;height: 32px;width: 32px;" 
+                                    <button data-id="@shade.Id" id="btnShade_@shade.Id" type="button" onclick="return fnGetShade(this.id)"
+                                            style="background-color: @shade.ShadeColor;border: 1px solid; margin: 5px;height: 32px;width: 32px;"
                                             class="btn @colorpallete"></button>
-                                        }
-                                                                      
-                                    </div>                                    
-                                </div>
-                            </div>
-                        }
+                                }
 
-                        <div class="short-desc" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="short-desc" style="display: none;">
+                    <ul>
+                        <li>Salicylic Acid mildly exfoliates to help refine pores and skin texture</li>
+                        <li>Mild exfoliation hepes removes dead skin cells and accelerates skin renewal</li>
+                        <li>Centella asiatica is known for its healing power to deeply repair.</li>
+                    </ul>
+                </div>
+
+                <div class="quantity">
+                    <span>Quantity:</span>
+                    <div class="quantity-input">
+                        <input type="number" id="txtQuantity" onchange="chkQty();"
+                               name="product-quatity" value="1" data-max="120" pattern="[0-9]*">
+                        <a class="btn btn-increase" href="#"></a>
+                        <a class="btn btn-reduce" href="#"></a>
+                    </div>
+
+                </div>
+                <div class="wrap-footer-item footer-item-second">
+                    <h5 class="item-header">Check Delivery</h5>
+                    <div class="item-content">
+                        <div class="wrap-newletter-footer">
+                            <input id="txtPincode" type="number" class="input-pincode"
+                                   max="6" min="6" placeholder="Enter Pincode">
+                            <button class="btn-submit" onclick="GetPincode();">Check</button>
+
+                            @* <form method="POST" action="/Product/SearchPincode" class="frm-newletter" id="frm-newletter">
+                                    <input type="email" class="input-email"
+                                    maxlength="6" name="email" value="" placeholder="Enter Pincode">
+                                    <button class="btn-submit">Check</button>
+                                    <input type="email" class="" maxlength="6" name="email" value="" placeholder="Enter Pincode">
+                                </form> *@
+                        </div>
+                        <label id="txtDlvMsg" style="margin: 10px 10px;" class="text-success"></label>
+                    </div>
+                </div>
+                <div class="wrap-butons">
+                    <a href="javascript:;" onclick="btnAddToCart()" class="btn add-to-cart">Add to Cart</a>
+                </div>
+                <div class="wrap-butons">
+                    <a onclick="return btnBuyNow()" asp-action="Cart" asp-controller="Home" class="btn add-to-cart">Buy Now</a>
+                </div>
+
+                <div class="wrap-footer-item" style="display: none;">
+                    <h3 class="item-header" style="font-size: 12px;">Share On Social Media</h3>
+                    <div class="item-content">
+                        <div class="wrap-list-item wrap-gallery">
                             <ul>
-                                <li>Salicylic Acid mildly exfoliates to help refine pores and skin texture</li>
-                                <li>Mild exfoliation hepes removes dead skin cells and accelerates skin renewal</li>
-                                <li>Centella asiatica is known for its healing power to deeply repair.</li>
+                                <li>
+                                    <a href="#" class="link-to-item">
+                                        <i class="fa fa-facebook-square"
+                                           aria-hidden="true"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="link-to-item">
+                                        <i class="fa fa-instagram"
+                                           aria-hidden="true"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="link-to-item">
+                                        <i class="fa fa-twitter-square"
+                                           aria-hidden="true"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="link-to-item">
+                                        <i class="fa fa-linkedin-square"
+                                           aria-hidden="true"></i>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
-
-                        <div class="quantity">
-                            <span>Quantity:</span>
-                            <div class="quantity-input">
-                                <input type="number" id="txtQuantity" onchange="chkQty();"
-                                    name="product-quatity" value="1" data-max="120" pattern="[0-9]*">
-                                <a class="btn btn-increase" href="#"></a>
-                                <a class="btn btn-reduce" href="#"></a>
-                            </div>
-
-                        </div>
-                        <div class="wrap-footer-item footer-item-second">
-                            <h5 class="item-header">Check Delivery</h5>
-                            <div class="item-content">
-                                <div class="wrap-newletter-footer">
-                                    <input id="txtPincode" type="number" class="input-pincode" 
-                                    max="6" min="6" placeholder="Enter Pincode">
-                                        <button class="btn-submit" onclick="GetPincode();">Check</button>
-                                    
-                                    @* <form method="POST" action="/Product/SearchPincode" class="frm-newletter" id="frm-newletter">
-                                        <input type="email" class="input-email" 
-                                        maxlength="6" name="email" value="" placeholder="Enter Pincode">
-                                        <button class="btn-submit">Check</button>
-                                        <input type="email" class="" maxlength="6" name="email" value="" placeholder="Enter Pincode">
-                                    </form> *@
-                                </div>
-                                <label id="txtDlvMsg" style="margin: 10px 10px;" class="text-success"></label>
-                            </div>
-                        </div>
-                        <div class="wrap-butons">
-                            <a href="javascript:;" onclick="btnAddToCart()" class="btn add-to-cart">Add to Cart</a>
-                        </div>
-                        <div class="wrap-butons">
-                            <a onclick="return btnBuyNow()" asp-action="Cart" asp-controller="Home" class="btn add-to-cart">Buy Now</a>
-                        </div>
-
-                        <div class="wrap-footer-item" style="display: none;">
-                            <h3 class="item-header" style="font-size: 12px;">Share On Social Media</h3>
-                            <div class="item-content">
-                                <div class="wrap-list-item wrap-gallery">
-                                    <ul>
-                                        <li><a href="#" class="link-to-item"><i class="fa fa-facebook-square"
-                                                    aria-hidden="true"></i></a></li>
-                                        <li><a href="#" class="link-to-item"><i class="fa fa-instagram"
-                                                    aria-hidden="true"></i></a></li>
-                                        <li><a href="#" class="link-to-item"><i class="fa fa-twitter-square"
-                                                    aria-hidden="true"></i></a></li>
-                                        <li><a href="#" class="link-to-item"><i class="fa fa-linkedin-square"
-                                                    aria-hidden="true"></i></a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
-                    <div class="advance-info">
-                        <div class="tab-control normal">
-                            <a href="#description" class="tab-control-item active">Specification</a>
-                            <a href="#add_infomation" class="tab-control-item">How to Use</a>
-                            <a href="#review" class="tab-control-item">Reviews & Rating</a>
-                        </div>
-                        <div class="tab-contents">
-                            <div class="tab-content-item active" id="description">
-                                <p>@Model.Product.Specification</p>
-                            </div>
-                            <div class="tab-content-item " id="add_infomation">
-                                <p>@Model.Product.HowToUse</p>
-                            </div>
-                            <div class="tab-content-item " id="review">
+                </div>
 
-                                <div class="wrap-review-form">
+            </div>
+            <div class="advance-info">
+                <div class="tab-control normal">
+                    <a href="#description" class="tab-control-item active">Specification</a>
+                    <a href="#add_infomation" class="tab-control-item">How to Use</a>
+                    <a href="#review" class="tab-control-item">Reviews & Rating</a>
+                </div>
+                <div class="tab-contents">
+                    <div class="tab-content-item active" id="description">
+                        <p>@Model.Product.Specification</p>
+                    </div>
+                    <div class="tab-content-item " id="add_infomation">
+                        <p>@Model.Product.HowToUse</p>
+                    </div>
+                    <div class="tab-content-item " id="review">
 
-                                    <div id="comments">
-                                        <ol class="commentlist">
-                                            <li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1"
-                                                id="li-comment-20">
-                                                <div id="comment-20" class="comment_container">
+                        <div class="wrap-review-form">
 
-                                                    <div class="comment-text">
-                                                        <div class="star-rating">
-                                                            <span class="width-80-percent">Rated <strong
-                                                                    class="rating">5</strong> out of 5</span>
-                                                        </div>
-                                                        <p class="meta">
-                                                            <strong class="woocommerce-review__author">admin</strong>
-                                                            <span class="woocommerce-review__dash">–</span>
-                                                            <time class="woocommerce-review__published-date"
-                                                                datetime="2008-02-14 20:00">Aug 15, 2017</time>
+                            <div id="comments">
+                                <ol class="commentlist">
+                                    
+                                    @foreach (var item in reviews)
+                                    {
+                                        var user = await _userManager.FindByIdAsync(item.CreatedBy);
+
+                                        string ratingText = item.Rating == 4 ? "width-80-percent" : "width-100-percent";
+
+                                        <li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1"
+                                            id="li-comment-20">
+                                            <div id="comment-20" class="comment_container">
+
+                                                <div class="comment-text">
+                                                    <div class="star-rating">
+                                                        <span class="@ratingText">
+                                                            Rated <strong class="rating">5</strong> out of 5
+                                                        </span>
+                                                    </div>
+                                                    <p class="meta">
+                                                        <strong class="woocommerce-review__author">@user.FullName</strong>
+                                                        <span class="woocommerce-review__dash">–</span>
+                                                        <time class="woocommerce-review__published-date"
+                                                              datetime="2008-02-14 20:00">@item.CreatedDate.ToString("MMM dd, yyyy")</time>
                                                         </p>
                                                         <div class="description">
-                                                            <p>Pellentesque habitant morbi tristique senectus et netus
-                                                                et malesuada fames ac turpis egestas.</p>
+                                                            <p>
+                                                                @item.ReviewText
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </li>
-                                        </ol>
-                                    </div><!-- #comments -->
+                                        }
+                                </ol>
+                            </div><!-- #comments -->
 
-                                    <div id="review_form_wrapper">
-                                        <div id="review_form">
-                                            <div id="respond" class="comment-respond">
+                            <div id="review_form_wrapper">
+                                <div id="review_form">
+                                    <div id="respond" class="comment-respond">
 
-                                                @* <form action="#" method="post" id="commentform" 
-                                                    novalidate=""> *@
-                                                @* @using (Html.BeginForm("ReviewRatings", "Product", FormMethod.Post)) *@
-                                                <form class="comment-form">
-                                                    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
-                                                    <p class="comment-notes">
-                                                        <span id="email-notes">Your email address will not be
-                                                            published.</span> Required fields are marked <span
-                                                            class="required">*</span>
-                                                    </p>
-                                                    <div class="comment-form-rating">
-                                                        <span>Your rating</span>
-                                                        <p class="stars">
+                                        <form class="comment-form">
+                                            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                                            <p class="comment-notes">
+                                                <span id="email-notes">
+                                                    Your email address will not be
+                                                    published.
+                                                </span> Required fields are marked <span class="required">*</span>
+                                            </p>
+                                            <div class="comment-form-rating">
+                                                <span>Your rating</span>
+                                                <p class="stars">
 
-                                                            <label for="rated-1"></label>
-                                                            <input asp-for="@Model.ProductReview.Rating" type="radio" id="rated-1" value="1">
+                                                    <label for="rated-1"></label>
+                                                    <input asp-for="@Model.ProductReview.Rating" type="radio" id="rated-1" value="1">
 
-                                                            <label for="rated-2"></label>
-                                                            <input type="radio" id="rated-2" asp-for="@Model.ProductReview.Rating" value="2">
-                                                            <label for="rated-3"></label>
-                                                            <input type="radio" id="rated-3" asp-for="@Model.ProductReview.Rating" value="3">
-                                                            <label for="rated-4"></label>
-                                                            <input type="radio" id="rated-4" asp-for="@Model.ProductReview.Rating" value="4">
-                                                            <label for="rated-5"></label>
-                                                            <input type="radio" id="rated-5" asp-for="@Model.ProductReview.Rating" value="5"
-                                                                checked="checked">
-                                                        </p>
-                                                    </div>
-                                                    <p class="comment-form-author">
-                                                        <label for="author">Name <span class="required">*</span></label>
-                                                        <input id="name" asp-for="@Model.ProductReview.Name" type="text" value="">
-                                                    </p>
-                                                    <p class="comment-form-email">
-                                                        <label for="email">Email <span class="required">*</span></label>
-                                                        <input id="email" asp-for="@Model.ProductReview.Email" type="email" value="">
-                                                    </p>
-                                                    <p class="comment-form-comment">
-                                                        <label for="comment">Your review <span class="required">*</span>
-                                                        </label>
-                                                        <textarea id="comment" name="comment" asp-for="@Model.ProductReview.ReviewText" cols="45"
-                                                            rows="8"></textarea>
-                                                    </p>
-                                                    <p class="form-submit">
-                                                        <input name="submit" onclick="btnSaveReview()" type="submit" id="submit" class="submit" value="Submit">
-                                                    </p>
-                                                </form>
+                                                    <label for="rated-2"></label>
+                                                    <input type="radio" id="rated-2" asp-for="@Model.ProductReview.Rating" value="2">
+                                                    <label for="rated-3"></label>
+                                                    <input type="radio" id="rated-3" asp-for="@Model.ProductReview.Rating" value="3">
+                                                    <label for="rated-4"></label>
+                                                    <input type="radio" id="rated-4" asp-for="@Model.ProductReview.Rating" value="4">
+                                                    <label for="rated-5"></label>
+                                                    <input type="radio" id="rated-5" asp-for="@Model.ProductReview.Rating" value="5"
+                                                           checked="checked">
+                                                </p>
+                                            </div>
+                                            <p class="comment-form-author">
+                                                <label for="author">Name <span class="required">*</span></label>
+                                                <input id="name" asp-for="@Model.ProductReview.Name" type="text" value="">
+                                            </p>
+                                            <p class="comment-form-email">
+                                                <label for="email">Email <span class="required">*</span></label>
+                                                <input id="email" asp-for="@Model.ProductReview.Email" type="email" value="">
+                                            </p>
+                                            <p class="comment-form-comment">
+                                                <label for="comment">
+                                                    Your review <span class="required">*</span>
+                                                </label>
+                                                <textarea id="comment" name="comment" asp-for="@Model.ProductReview.ReviewText" cols="45"
+                                                          rows="8"></textarea>
+                                            </p>
+                                            <p class="form-submit">
+                                                <input name="submit" onclick="btnSaveReview()" type="submit" id="submit" class="submit" value="Submit">
+                                            </p>
+                                        </form>
 
-                                            </div><!-- .comment-respond-->
-                                        </div><!-- #review_form -->
-                                    </div><!-- #review_form_wrapper -->
+                                    </div><!-- .comment-respond-->
+                                </div><!-- #review_form -->
+                            </div><!-- #review_form_wrapper -->
 
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 sitebar">
-                <div class="widget mercado-widget widget-product">
-                    <h2 class="widget-title">Similar Products</h2>
-                    <div class="widget-content">
-                        <ul class="products">
-                            @foreach (var prod in similarProducts)
-                            {
-                                var unit = await _reposiroty.ProductUnits.FirstOrDefaultAsync(p => p.ProductId == prod.Id);
-                                var shade = await _reposiroty.Shades.FirstOrDefaultAsync(p => p.ProductId == prod.Id);
-                                var brnd = await _reposiroty.Brands.FindAsync(prod.BrandId);
-                                //var imgUrl = _reposiroty.ProductImages.FirstOrDefault(p => p.ProductId == sp.Id && p.IsMainPic)?.ProductImageUrl;
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 sitebar">
+        <div class="widget mercado-widget widget-product">
+            <h2 class="widget-title">Similar Products</h2>
+            <div class="widget-content">
+                <ul class="products">
+                    @foreach (var prod in similarProducts)
+                    {
+                        var unit = await _reposiroty.ProductUnits.FirstOrDefaultAsync(p => p.ProductId == prod.Id);
+                        var shade = await _reposiroty.Shades.FirstOrDefaultAsync(p => p.ProductId == prod.Id);
+                        var brnd = await _reposiroty.Brands.FindAsync(prod.BrandId);
+                        //var imgUrl = _reposiroty.ProductImages.FirstOrDefault(p => p.ProductId == sp.Id && p.IsMainPic)?.ProductImageUrl;
 
-                                <li class="product-item">
-                                    <div class="product product-widget-style">
-                                        <div class="thumbnnail">
-                                            <a asp-action="Details" asp-controller="Product" 
-                                            asp-route-id="@prod?.Id" asp-route-unitid="@unit?.Id" asp-route-shadeid="@shade?.Id"
-                                            title="Click here to view product details">
-                                            @if(prod.IsActive){
-                                                if(prod.IsPreviewShade){
-                                                    var imgshd = (await _reposiroty.ProductImages?.FirstOrDefaultAsync(p => p.ProductId == prod.Id && p.ShadeId == shade.Id))?.ProductImageUrl;
-                                                    @* <img src="assets/images/p1.jpg" alt=""> *@
-                                                    <img src="@imgshd" alt="ProdImage">
+                        <li class="product-item">
+                            <div class="product product-widget-style">
+                                <div class="thumbnnail">
+                                    <a asp-action="Details" asp-controller="Product"
+                                       asp-route-id="@prod?.Id" asp-route-unitid="@unit?.Id" asp-route-shadeid="@shade?.Id"
+                                       title="Click here to view product details">
+                                        @if (prod.IsActive)
+                                        {
+                                            if (prod.IsPreviewShade)
+                                            {
+                                                var imgshd = (await _reposiroty.ProductImages?.FirstOrDefaultAsync(p => p.ProductId == prod.Id && p.ShadeId == shade.Id))?.ProductImageUrl;
+                                                @* <img src="assets/images/p1.jpg" alt=""> *@
+                                                <img src="@imgshd" alt="ProdImage">
+                                            }
+                                            else
+                                            {
+                                                if (unit != null && _reposiroty.ProductImages.Any(p => p.ProductId == prod.Id && p.ProductUnitId == unit.Id))
+                                                {
+                                                    var img = (await _reposiroty.ProductImages.FirstOrDefaultAsync(p => p.ProductId == prod.Id && p.ProductUnitId == unit.Id)).ProductImageUrl;
+                                                    <img src="@img" alt="ProdUnitImage">
                                                 }
-                                                else{
-                                                    if(unit!=null && _reposiroty.ProductImages.Any(p => p.ProductId == prod.Id && p.ProductUnitId == unit.Id))
-                                                    {
-                                                        var img =(await _reposiroty.ProductImages.FirstOrDefaultAsync(p => p.ProductId == prod.Id && p.ProductUnitId == unit.Id)).ProductImageUrl;
-                                                        <img src="@img" alt="ProdUnitImage">
-                                                    }                                            
-                                                }                  
-                                            }else{
-                                                var pimg =(await _reposiroty.ProductImages.FirstOrDefaultAsync(p => p.ProductId == prod.Id)).ProductImageUrl;
-                                                <img src="@pimg" style="opacity: 0.5;" alt="">
-                                            } 
-                                            </a>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            var pimg = (await _reposiroty.ProductImages.FirstOrDefaultAsync(p => p.ProductId == prod.Id)).ProductImageUrl;
+                                            <img src="@pimg" style="opacity: 0.5;" alt="">
+                                        }
+                                    </a>
 
-                                            @* <a asp-action="Details" asp-controller="Product" asp-route-id="@sp.Id" title="Click here to view product details">
-                                                <figure><img src="@imgUrl" alt="Product Image"></figure>
-                                            </a> *@
-                                        </div>
-                                        <div class="product-info">
-                                            <a asp-action="Details" asp-controller="Product" asp-route-id="@prod.Id" asp-route-unitid="@unit?.Id" class="product-name">                                
-                                            <span>@brnd.BrandName @prod.ProductName</span></a>
-                                            <div class="wrap-price">
-                                                <span class="product-price">
-                                                    <i class="fa fa-inr"></i> @unit?.Price.ToString("#,##0.00")
-                                                </span>
-                                                @if(unit?.PriceDel != 0){
-                                                    <span class="product-price pull-right"><del>
-                                                        <i class="fa fa-inr"></i> @unit?.PriceDel.ToString("#,##0.00")
-                                                    </del></span>
-                                                }
-                                            </div>
-                                        </div>
+                                    @* <a asp-action="Details" asp-controller="Product" asp-route-id="@sp.Id" title="Click here to view product details">
+                                            <figure><img src="@imgUrl" alt="Product Image"></figure>
+                                        </a> *@
+                                </div>
+                                <div class="product-info">
+                                    <a asp-action="Details" asp-controller="Product" asp-route-id="@prod.Id" asp-route-unitid="@unit?.Id" class="product-name">
+                                        <span>@brnd.BrandName @prod.ProductName</span>
+                                    </a>
+                                    <div class="wrap-price">
+                                        <span class="product-price">
+                                            <i class="fa fa-inr"></i> @unit?.Price.ToString("#,##0.00")
+                                        </span>
+                                        @if (unit?.PriceDel != 0)
+                                        {
+                                            <span class="product-price pull-right">
+                                                <del>
+                                                    <i class="fa fa-inr"></i> @unit?.PriceDel.ToString("#,##0.00")
+                                                </del>
+                                            </span>
+                                        }
                                     </div>
-                                </li>
-                            }
+                                </div>
+                            </div>
+                        </li>
+                    }
 
-                        </ul>
-                    </div>
-                </div>
-
+                </ul>
             </div>
         </div>
+
+    </div>
+</div>
 
 @section Scripts
 {
@@ -452,7 +532,60 @@
     <script>
         function btnSaveReview()
         {
-            alert('its done');
+            var name = $("#name").val();
+            var email = $("#email").val();
+            var comment = $("#comment").val();
+            var review = $('[name="ProductReview.Rating"]').val();
+
+            var prodid = @Model.Product.Id;
+            var unitid = @Model.ProductUnit.Id;
+
+            var sid = getUrlParameter('shadeid') === undefined ? 0 : getUrlParameter('shadeid');
+
+            if (name == "" || name == null) {
+                alert('Enter your name');
+                return false;
+            }
+
+            if (email == "" || email == null) {
+                alert('enter your email');
+                return false;
+            }
+
+            if (review == "" || review == null) {
+                alert('select review');
+                return false;
+            }
+
+            if (comment == "" || comment == null) {
+                alert('enter comment');
+                return false;
+            }
+
+            var model = {
+                ProductId: prodid,
+                UnitId: unitid,
+                ShadeId: sid,
+                Name : name,
+                Email: email,
+                Rating: review,
+                ReviewText: comment
+            }
+
+            $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("SaveReview", "Product")",
+                    data: model,
+                    dataType: "text",
+                    success: function (data) {
+                        var d = JSON.parse(data);
+
+                        if (d["shadeId"] > 0)
+                            window.location = "/Product/Details/" + d["productId"] + "?unitid=" + d["unitId"] + "&shadeid=" + d["shadeId"];
+                        else
+                            window.location = "/Product/Details/" + d["productId"] + "?unitid=" + d["unitId"];
+                    }
+                });
         }
 
         $(document).ready(function(){
@@ -462,7 +595,7 @@
 
                 var prodid = @Model.Product.Id;
                 var unitid = @Model.ProductUnit.Id;
-                
+
                 $.ajax({
                     type: 'GET',
                     url: '@Url.Action("GetQuantity","Product")',
@@ -470,15 +603,15 @@
                     data:{prodid: prodid, unitid: unitid, shadeid: 0},
                     success: function(data){
                         //console.log(data);
-                        $('#txtQuantity').val(data);   
+                        $('#txtQuantity').val(data);
                     },
                     error: function(ex){
                         console.log(ex);
                     }
                 });
             }
-            
-            
+
+
             if(getCookie('pincode')!='')
             {
                 var pincode = JSON.parse(getCookie('pincode'));
@@ -499,9 +632,9 @@
                 alert('Invalid Shade');
             }
 
-            window.location = '/Product/Details/@Model.Product.Id?unitid=@Model.ProductUnit.Id&shadeid=' + sid;            
+            window.location = '/Product/Details/@Model.Product.Id?unitid=@Model.ProductUnit.Id&shadeid=' + sid;
         }
-        
+
         function GetPincode()
         {
             var pincode = $('#txtPincode').val();
@@ -524,13 +657,13 @@
                 data:{id: pincode},
                 success: function(data){
                     if(data!=null){
-                                            
+
                         $('#txtDlvMsg').text(data['pincodes']);
                         $('#txtDlvMsg').append('<img src="/assets/images/verified.png" width="20" height="20" alt="Verified" />');
                     }else{
                         alert('This pincode is not available');
                         return false;
-                    }                        
+                    }
                 },
                 error: function(ex){
                     console.log(ex);
@@ -548,17 +681,17 @@
         {
             if(getCookie('pincode')==''){
                 alert('Please enter pincode first.');
-                return false;                
+                return false;
             }
 
-            var prodId =  @Model.Product.Id
-            var unitiId =   @Model.ProductUnit?.Id
+            var prodId =  @Model.Product.Id;
+            var unitiId =   @Model.ProductUnit?.Id;
             var shadeiId = getUrlParameter('shadeid') === undefined ? 0 : getUrlParameter('shadeid');
 
             var qty = $('#txtQuantity').val()==''? $('#txtQuantity').val('1') : $('#txtQuantity').val();
 
             var currQty = parseInt(qty);
-            
+
             if(currQty<=0 || currQty==null || isNaN(currQty)){
                 alert('Please enter quantity');
                 return false;
@@ -572,8 +705,8 @@
                 success: function(data){
                     console.log(data.length);
                     $(".txtItems").text(data.length + ' items');
-                    $("#lnkCart").attr("href", "/Home/Cart"); 
-                                       
+                    $("#lnkCart").attr("href", "/Home/Cart");
+
                     alert('Item has been added into cart.');
                 },
                 error: function(ex){
@@ -586,28 +719,28 @@
 
         function btnAddToCart()
         {
-            //var pin = $("#txtPincode").val();  
+            //var pin = $("#txtPincode").val();
 
             if(getCookie('pincode')==''){
                 alert('Please enter pincode first.');
-                return false;                
+                return false;
             }
 
             //var cookie = JSON.parse(getCookie('cart'));
-            
-            var prodId =  @Model.Product.Id
-            var unitiId =   @Model.ProductUnit?.Id
+
+            var prodId =  @Model.Product.Id;
+            var unitiId =   @Model.ProductUnit?.Id;
             var shadeiId = getUrlParameter('shadeid') === undefined ? 0 : getUrlParameter('shadeid');
-            
+
             var qty = $('#txtQuantity').val()==''? $('#txtQuantity').val('1') : $('#txtQuantity').val();
 
             var currQty = parseInt(qty);
-            
+
             if(currQty<=0 || currQty==null || isNaN(currQty)){
                 alert('Please enter quantity');
                 return false;
             }
-            //console.log("prodid:"+ prodId + "unitid:" +unitiId+ "shadeid:"+shadeiId+ 
+            //console.log("prodid:"+ prodId + "unitid:" +unitiId+ "shadeid:"+shadeiId+
             //"currqty:" + currQty)
             $.ajax({
                 type: 'GET',
@@ -617,8 +750,8 @@
                 success: function(data){
                     console.log(data.length);
                     $(".txtItems").text(data.length + ' items');
-                    $("#lnkCart").attr("href", "/Home/Cart"); 
-                                       
+                    $("#lnkCart").attr("href", "/Home/Cart");
+
                     alert('Item has been added into cart.');
                 },
                 error: function(ex){
@@ -626,16 +759,16 @@
                 }
             });
             return true;
-            
+
         }
 
         function btnAddReviews()
         {
-            
-            var prodId =  @Model.Product.Id
-            var unitiId =   @Model.ProductUnit?.Id
+
+            var prodId =  @Model.Product.Id;
+            var unitiId =   @Model.ProductUnit?.Id;
             var shadeiId = getUrlParameter('shadeid') === undefined ? 0 : getUrlParameter('shadeid');
-            
+
             var author = $('#name').val();
             var emailid = $('#email').val();
             var cmnt = $('#comment').val();
@@ -649,14 +782,14 @@
                 name: author, email: emailid, comment: cmnt, rate: rating},
                 success: function(data){
                     console.log(data.length);
-                    //window.location = '/Product/Details/2?unitid=2';                                       
+                    //window.location = '/Product/Details/2?unitid=2';
                 },
                 error: function(ex){
                     console.log(ex);
                 }
             });
             return true;
-            
+
         }
     </script>
 }

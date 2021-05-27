@@ -8,11 +8,13 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Shivyshine.Areas.Admin.Models;
+using Shivyshine.Areas.Identity.Data;
 using Shivyshine.Data;
 using Shivyshine.Models;
 
@@ -25,14 +27,17 @@ namespace Shivyshine.Controllers
         private readonly ApplicationDbContext _repository;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public ProductController(ApplicationDbContext repository,
                                 IWebHostEnvironment webHostEnvironment,
-                                IMapper mapper)
+                                IMapper mapper,
+                                UserManager<ApplicationUser> userManager)
         {
             _repository = repository;
             _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
@@ -314,6 +319,39 @@ namespace Shivyshine.Controllers
             }
 
             return Json(qty);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveReview(ProductReview model)
+        {
+            if (model.Name == null)
+                return Json("User is not valid");
+
+            if (model.Email == null)
+                return Json("Location not entered, please enter destination.");
+
+            //ProductReview review = new ProductReview();
+            //review.ProductId = model.ProductId;
+
+            //review.Name = model.Name;
+            //review.Email = model.Email;
+            //review.ReviewText = model.ReviewText;
+            //review.Rating = model.Rating;
+
+            var user = await _userManager.GetUserAsync(User);
+            
+            model.CreatedBy = user.Id;
+            model.CreatedDate = DateTime.Now;
+
+            _repository.ProductReviews.Add(model);
+            _repository.SaveChanges();
+
+            return Json(model);
+
+            //if (model.ShadeId > 0)
+            //    return RedirectToAction("Details", "Product", new { id = model.ProductId, unitid = model.UnitId, shadeid = model.ShadeId });
+            //else
+            //    return RedirectToAction("Details", "Product", new { id = model.ProductId, unitid = model.UnitId });
         }
 
     }
