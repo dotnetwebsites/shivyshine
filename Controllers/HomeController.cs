@@ -24,8 +24,8 @@ using Shivyshine.Utilities;
 
 namespace Shivyshine.Controllers
 {
-    [Authorize]
-    //[AllowAnonymous]
+    //[Authorize]
+    [AllowAnonymous]
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext _repository;

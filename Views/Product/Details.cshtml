@@ -390,16 +390,16 @@
                                                 <p class="stars">
 
                                                     <label for="rated-1"></label>
-                                                    <input asp-for="@Model.ProductReview.Rating" type="radio" id="rated-1" value="1">
+                                                    <input asp-for="@Model.ProductReview.Rating" name="rdRating" type="radio" id="rated-1" value="1">
 
                                                     <label for="rated-2"></label>
-                                                    <input type="radio" id="rated-2" asp-for="@Model.ProductReview.Rating" value="2">
+                                                    <input type="radio" id="rated-2" name="rdRating" asp-for="@Model.ProductReview.Rating" value="2">
                                                     <label for="rated-3"></label>
-                                                    <input type="radio" id="rated-3" asp-for="@Model.ProductReview.Rating" value="3">
+                                                    <input type="radio" id="rated-3" name="rdRating" asp-for="@Model.ProductReview.Rating" value="3">
                                                     <label for="rated-4"></label>
-                                                    <input type="radio" id="rated-4" asp-for="@Model.ProductReview.Rating" value="4">
+                                                    <input type="radio" id="rated-4" name="rdRating" asp-for="@Model.ProductReview.Rating" value="4">
                                                     <label for="rated-5"></label>
-                                                    <input type="radio" id="rated-5" asp-for="@Model.ProductReview.Rating" value="5"
+                                                    <input type="radio" id="rated-5" name="rdRating" asp-for="@Model.ProductReview.Rating" value="5"
                                                            checked="checked">
                                                 </p>
                                             </div>
@@ -535,7 +535,7 @@
             var name = $("#name").val();
             var email = $("#email").val();
             var comment = $("#comment").val();
-            var review = $('[name="ProductReview.Rating"]').val();
+            var rate = $('[name="rdRating"]:checked').val();
 
             var prodid = @Model.Product.Id;
             var unitid = @Model.ProductUnit.Id;
@@ -552,8 +552,8 @@
                 return false;
             }
 
-            if (review == "" || review == null) {
-                alert('select review');
+            if (rate == "" || rate == null) {
+                alert('select rating');
                 return false;
             }
 
@@ -568,7 +568,7 @@
                 ShadeId: sid,
                 Name : name,
                 Email: email,
-                Rating: review,
+                Rating: rate,
                 ReviewText: comment
             }
 

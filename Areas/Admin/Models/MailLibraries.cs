@@ -48,7 +48,7 @@ namespace Shivyshine.Models
 
         [Display(Name = "Use default credentials")]
         public bool UseDefaultCredentials { get; set; }
-
+        public bool System { get; set; }
         // [NotMapped]
         // public MailAddress FromAddress = new MailAddress(EmailAddress, EmailName);
     }
