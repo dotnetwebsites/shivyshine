@@ -24,8 +24,8 @@ using Shivyshine.Utilities;
 
 namespace Shivyshine.Controllers
 {
-    //[Authorize]
-    [AllowAnonymous]
+    [Authorize]
+    //[AllowAnonymous]
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext _repository;
@@ -55,7 +55,7 @@ namespace Shivyshine.Controllers
         }
 
         [HttpGet]
-        //[AllowAnonymous]        
+        [AllowAnonymous]        
         public async Task<IActionResult> Index()
         {
             if (Request.Cookies["payid"] != null)
@@ -89,7 +89,7 @@ namespace Shivyshine.Controllers
         }
 
         [HttpGet]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public IActionResult AddToCart(int id, int unitid, int shadeid)
         {
             if (unitid > 0)
@@ -155,7 +155,7 @@ namespace Shivyshine.Controllers
         }
 
         [HttpGet]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public JsonResult UpdateCart(int prodid, int unitid, int shadeid, int currqty)
         {
             double amount = 0;
@@ -183,7 +183,7 @@ namespace Shivyshine.Controllers
         }
 
         [HttpGet]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public IActionResult Cart()
         {
             if (Request.Cookies["cart"] == null)
@@ -208,7 +208,7 @@ namespace Shivyshine.Controllers
         }
 
         [HttpGet]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public IActionResult DeleteToCart(int pid, int unitid, int shadeid)
         {
             CookieOptions option = new CookieOptions();
@@ -237,7 +237,7 @@ namespace Shivyshine.Controllers
         }
 
         [HttpGet]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public IActionResult AddNewAddress()
         {
             ViewBag.CountryId = new SelectList(_repository.Countries, "Id", "CountryName");
@@ -245,6 +245,7 @@ namespace Shivyshine.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> AddNewAddress(Address model)
         {
             if (ModelState.IsValid)
@@ -507,7 +508,7 @@ namespace Shivyshine.Controllers
         // }
 
         [HttpGet]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public async Task<JsonResult> GetOrders()
         {
             var customerOrder = await _repository.CustomerOrders.ToListAsync();
@@ -638,7 +639,7 @@ namespace Shivyshine.Controllers
         }
 
         [HttpGet]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(string username, string password, string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
@@ -687,7 +688,7 @@ namespace Shivyshine.Controllers
         }
 
         [HttpGet]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public async Task<IActionResult> LogOut(string returnUrl = null)
         {
             await _signInManager.SignOutAsync();
@@ -704,7 +705,7 @@ namespace Shivyshine.Controllers
         }
 
         [HttpGet]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public async Task<IActionResult> EditAddress(int? id, string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
@@ -723,7 +724,7 @@ namespace Shivyshine.Controllers
         }
 
         [HttpPost]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public async Task<IActionResult> EditAddress(Address address)
         {
             if (ModelState.IsValid)

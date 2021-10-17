@@ -16,8 +16,8 @@ using Shivyshine.Models;
 
 namespace Shivyshine.Controllers
 {
-    //[AllowAnonymous]
-    [Authorize]
+    [AllowAnonymous]
+    //[Authorize]
     public class CategoryController : Controller
     {
         private readonly ApplicationDbContext _repository;

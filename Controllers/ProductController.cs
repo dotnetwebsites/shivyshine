@@ -20,8 +20,8 @@ using Shivyshine.Models;
 
 namespace Shivyshine.Controllers
 {
-    //[AllowAnonymous]
-    [Authorize]
+    [AllowAnonymous]
+    //[Authorize]
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _repository;
